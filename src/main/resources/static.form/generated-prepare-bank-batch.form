@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Total aprobado",
+      "type": "number",
+      "id": "Field_payrollTotal",
+      "key": "payrollTotal",
+      "defaultValue": 1000000,
+      "disabled": true
+    },
+    {
+      "label": "ID del lote",
+      "type": "textfield",
+      "id": "Field_paymentBatchId",
+      "key": "paymentBatchId",
+      "defaultValue": "LOTE-0001",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Cuenta de origen",
+      "type": "textfield",
+      "id": "Field_bankAccount",
+      "key": "bankAccount",
+      "defaultValue": "000-123",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-prepare-bank-batch"
+}

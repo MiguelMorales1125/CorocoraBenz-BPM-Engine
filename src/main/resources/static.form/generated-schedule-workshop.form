@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Taller asignado",
+      "type": "textfield",
+      "id": "Field_dealerId",
+      "key": "dealerId",
+      "defaultValue": "TALLER-BOG-01",
+      "disabled": true
+    },
+    {
+      "label": "Fecha y hora de la cita",
+      "type": "textfield",
+      "id": "Field_appointmentDate",
+      "key": "appointmentDate",
+      "defaultValue": "2026-11-20 09:00",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Número de orden de taller",
+      "type": "textfield",
+      "id": "Field_serviceOrderId",
+      "key": "serviceOrderId",
+      "defaultValue": "OT-0001",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-schedule-workshop"
+}

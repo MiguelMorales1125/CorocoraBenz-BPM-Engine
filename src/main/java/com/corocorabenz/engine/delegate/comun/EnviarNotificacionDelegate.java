@@ -63,7 +63,7 @@ public class EnviarNotificacionDelegate implements JavaDelegate {
     }
 
     CorreoService.Modo modo = correo.enviar(destinatario(execution), asunto, cuerpo);
-    execution.setVariable("notificationSent", modo != CorreoService.Modo.ERROR);
+    execution.setVariable("notificationSent", modo == CorreoService.Modo.EMAIL);
     execution.setVariable("notificationMode", modo.name());
   }
 

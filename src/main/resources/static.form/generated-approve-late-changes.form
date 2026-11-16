@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Novedades fuera de corte",
+      "type": "textfield",
+      "id": "Field_lateChangesSummary",
+      "key": "lateChangesSummary",
+      "defaultValue": "EMP-003 · Horas extra · 4 h registradas después de la fecha de corte",
+      "disabled": true
+    },
+    {
+      "label": "Aprobar las novedades",
+      "type": "checkbox",
+      "id": "Field_lateChangesApproved",
+      "key": "lateChangesApproved",
+      "defaultValue": true
+    },
+    {
+      "label": "Motivo de la decisión",
+      "type": "textfield",
+      "id": "Field_lateDecisionReason",
+      "key": "lateDecisionReason",
+      "defaultValue": "Autorizada por gerencia",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-approve-late-changes"
+}

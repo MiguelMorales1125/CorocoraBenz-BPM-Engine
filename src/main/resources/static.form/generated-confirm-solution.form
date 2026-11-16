@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "¿La solución resolvió el incidente?",
+      "type": "checkbox",
+      "id": "Field_userConfirmed",
+      "key": "userConfirmed",
+      "defaultValue": true
+    }
+  ],
+  "type": "default",
+  "id": "generated-confirm-solution"
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Ticket",
+      "type": "textfield",
+      "id": "Field_ticketId",
+      "key": "ticketId",
+      "defaultValue": "TI-0001",
+      "disabled": true
+    },
+    {
+      "label": "Prioridad",
+      "type": "textfield",
+      "id": "Field_priority",
+      "key": "priority",
+      "defaultValue": "P3",
+      "disabled": true
+    },
+    {
+      "label": "Plan de atención",
+      "type": "textfield",
+      "id": "Field_recoveryPlan",
+      "key": "recoveryPlan",
+      "defaultValue": "Escalar al fabricante de la cámara",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Nuevo responsable",
+      "type": "textfield",
+      "id": "Field_newOwner",
+      "key": "newOwner",
+      "defaultValue": "demo"
+    }
+  ],
+  "type": "default",
+  "id": "generated-review-sla"
+}

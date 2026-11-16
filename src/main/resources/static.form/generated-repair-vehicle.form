@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Diagnóstico",
+      "type": "textfield",
+      "id": "Field_diagnosis",
+      "key": "diagnosis",
+      "defaultValue": "Falla en el módulo de cámara",
+      "disabled": true
+    },
+    {
+      "label": "Trabajo realizado",
+      "type": "textfield",
+      "id": "Field_repairNotes",
+      "key": "repairNotes",
+      "defaultValue": "Se reemplazó el módulo de cámara",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Costo del servicio",
+      "type": "number",
+      "id": "Field_serviceCost",
+      "key": "serviceCost",
+      "defaultValue": 350000,
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-repair-vehicle"
+}

@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_CB_PostventaGarantias" targetNamespace="https://corocora-benz.example/bpmn" exporter="Camunda Modeler" exporterVersion="5.52.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
   <bpmn:message id="Message_SolicitudServicio" name="SolicitudServicio" />
+  <bpmn:message id="Message_RepuestosDisponibles" name="RepuestosDisponibles" />
   <bpmn:message id="Message_CotizacionAceptada" name="CotizacionAceptada" />
   <bpmn:message id="Message_CotizacionRechazada" name="CotizacionRechazada" />
   <bpmn:collaboration id="Collaboration_CB_PostventaGarantias">
     <bpmn:participant id="Participant_CorocoraBenz" name="Corocora Benz" processRef="CB_PostventaGarantias" />
     <bpmn:participant id="Participant_Cliente" name="Cliente" />
+    <bpmn:participant id="Participant_Bodega" name="Bodega de repuestos" />
+    <bpmn:messageFlow id="MessageFlow_RepuestosDisponibles" sourceRef="Participant_Bodega" targetRef="waitParts" />
     <bpmn:messageFlow id="MessageFlow_Solicitud" sourceRef="Participant_Cliente" targetRef="startRequest" />
     <bpmn:messageFlow id="MessageFlow_Cotizacion" sourceRef="prepareQuote" targetRef="Participant_Cliente" />
     <bpmn:messageFlow id="MessageFlow_Rechazo" sourceRef="Participant_Cliente" targetRef="quoteRejected" />
@@ -40,6 +43,9 @@
       <bpmn:lane id="Lane_Coordinador" name="Coordinador de Postventa">
         <bpmn:flowNodeRef>parallelSplit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>reserveParts</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>partsAvailable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>waitParts</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>partsMerge</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>scheduleWorkshop</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>parallelJoin</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>attendWorkshop</bpmn:flowNodeRef>
@@ -189,31 +195,27 @@
       <bpmn:incoming>Flow_20</bpmn:incoming>
       <bpmn:outgoing>Flow_22</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="scheduleWorkshop" name="Agendar cita en el taller" camunda:candidateGroups="coordinadores-postventa">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="dealerId" label="Taller asignado" type="string" defaultValue="TALLER-BOG-01">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="appointmentDate" label="Fecha y hora de la cita" type="string" defaultValue="2026-11-20 09:00">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="serviceOrderId" label="Número de orden de taller" type="string" defaultValue="OT-0001">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:exclusiveGateway id="partsAvailable" name="¿Repuestos disponibles?">
+      <bpmn:incoming>Flow_22</bpmn:incoming>
+      <bpmn:outgoing>Flow_PartsAvailable</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PartsWait</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateCatchEvent id="waitParts" name="Esperar aviso de repuestos disponibles">
+      <bpmn:incoming>Flow_PartsWait</bpmn:incoming>
+      <bpmn:outgoing>Flow_PartsArrived</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_RepuestosDisponibles" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="partsMerge">
+      <bpmn:incoming>Flow_PartsAvailable</bpmn:incoming>
+      <bpmn:incoming>Flow_PartsArrived</bpmn:incoming>
+      <bpmn:outgoing>Flow_PartsReady</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="scheduleWorkshop" name="Agendar cita en el taller" camunda:candidateGroups="coordinadores-postventa" camunda:formRef="generated-schedule-workshop" camunda:formRefBinding="deployment">
       <bpmn:incoming>Flow_21</bpmn:incoming>
       <bpmn:outgoing>Flow_23</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:parallelGateway id="parallelJoin" camunda:asyncBefore="true">
-      <bpmn:incoming>Flow_22</bpmn:incoming>
+      <bpmn:incoming>Flow_PartsReady</bpmn:incoming>
       <bpmn:incoming>Flow_23</bpmn:incoming>
       <bpmn:outgoing>Flow_24</bpmn:outgoing>
     </bpmn:parallelGateway>
@@ -233,34 +235,7 @@
       <bpmn:incoming>Flow_24</bpmn:incoming>
       <bpmn:outgoing>Flow_25</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:userTask id="deliverVehicle" name="Entregar vehículo y cerrar caso" camunda:candidateGroups="asesores-servicio">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="serviceOrderId" label="Orden de taller" type="string" defaultValue="OT-0001">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="repairNotes" label="Trabajo realizado" type="string" defaultValue="Se reemplazó el módulo de cámara">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="serviceCost" label="Costo del servicio" type="long" defaultValue="350000">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="customerSatisfaction" label="Satisfacción del cliente (1 a 5)" type="long" defaultValue="5">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-              <camunda:constraint name="min" config="1" />
-              <camunda:constraint name="max" config="6" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="deliveryNote" label="Observación de entrega" type="string" defaultValue="Vehículo entregado al cliente" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="deliverVehicle" name="Entregar vehículo y cerrar caso" camunda:candidateGroups="asesores-servicio" camunda:formRef="generated-deliver-vehicle" camunda:formRefBinding="deployment">
       <bpmn:incoming>Flow_25</bpmn:incoming>
       <bpmn:outgoing>Flow_26</bpmn:outgoing>
     </bpmn:userTask>
@@ -296,7 +271,15 @@
     <bpmn:sequenceFlow id="Flow_19" sourceRef="authorizedMerge" targetRef="parallelSplit" />
     <bpmn:sequenceFlow id="Flow_20" sourceRef="parallelSplit" targetRef="reserveParts" />
     <bpmn:sequenceFlow id="Flow_21" sourceRef="parallelSplit" targetRef="scheduleWorkshop" />
-    <bpmn:sequenceFlow id="Flow_22" sourceRef="reserveParts" targetRef="parallelJoin" />
+    <bpmn:sequenceFlow id="Flow_22" sourceRef="reserveParts" targetRef="partsAvailable" />
+    <bpmn:sequenceFlow id="Flow_PartsAvailable" name="Sí" sourceRef="partsAvailable" targetRef="partsMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${partsReservationStatus == 'RESERVED'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_PartsWait" name="No" sourceRef="partsAvailable" targetRef="waitParts">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${partsReservationStatus == 'PENDIENTE'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_PartsArrived" sourceRef="waitParts" targetRef="partsMerge" />
+    <bpmn:sequenceFlow id="Flow_PartsReady" sourceRef="partsMerge" targetRef="parallelJoin" />
     <bpmn:sequenceFlow id="Flow_23" sourceRef="scheduleWorkshop" targetRef="parallelJoin" />
     <bpmn:sequenceFlow id="Flow_24" sourceRef="parallelJoin" targetRef="attendWorkshop" />
     <bpmn:sequenceFlow id="Flow_25" sourceRef="attendWorkshop" targetRef="deliverVehicle" />
@@ -394,6 +377,15 @@
       <bpmndi:BPMNShape id="reserveParts_di" bpmnElement="reserveParts">
         <dc:Bounds x="2525" y="935" width="110" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="partsAvailable_di" bpmnElement="partsAvailable" isMarkerVisible="true">
+        <dc:Bounds x="2670" y="950" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2645" y="905" width="100" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitParts_di" bpmnElement="waitParts">
+        <dc:Bounds x="2800" y="957" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2760" y="910" width="115" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="partsMerge_di" bpmnElement="partsMerge" isMarkerVisible="true"><dc:Bounds x="2860" y="1005" width="50" height="50" /></bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="scheduleWorkshop_di" bpmnElement="scheduleWorkshop">
         <dc:Bounds x="2525" y="1165" width="110" height="80" />
       </bpmndi:BPMNShape>
@@ -521,11 +513,11 @@
         <di:waypoint x="2390" y="1205" />
         <di:waypoint x="2525" y="1205" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22">
-        <di:waypoint x="2635" y="975" />
-        <di:waypoint x="2770" y="975" />
-        <di:waypoint x="2770" y="1065" />
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22"><di:waypoint x="2635" y="975" /><di:waypoint x="2670" y="975" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PartsAvailable_di" bpmnElement="Flow_PartsAvailable"><di:waypoint x="2695" y="1000" /><di:waypoint x="2695" y="1020" /><di:waypoint x="2860" y="1020" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PartsWait_di" bpmnElement="Flow_PartsWait"><di:waypoint x="2720" y="975" /><di:waypoint x="2800" y="975" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PartsArrived_di" bpmnElement="Flow_PartsArrived"><di:waypoint x="2836" y="975" /><di:waypoint x="2885" y="975" /><di:waypoint x="2885" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PartsReady_di" bpmnElement="Flow_PartsReady"><di:waypoint x="2860" y="1030" /><di:waypoint x="2770" y="1030" /><di:waypoint x="2770" y="1065" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_23_di" bpmnElement="Flow_23">
         <di:waypoint x="2635" y="1205" />
         <di:waypoint x="2770" y="1205" />
@@ -545,6 +537,8 @@
         <di:waypoint x="3205" y="470" />
         <di:waypoint x="3322" y="470" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Bodega_di" bpmnElement="Participant_Bodega" isHorizontal="true"><dc:Bounds x="160" y="1340" width="3320" height="100" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MessageFlow_RepuestosDisponibles_di" bpmnElement="MessageFlow_RepuestosDisponibles"><di:waypoint x="2818" y="1340" /><di:waypoint x="2818" y="993" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_Cliente_di" bpmnElement="Participant_Cliente" isHorizontal="true">
         <dc:Bounds x="160" y="120" width="3320" height="100" />
       </bpmndi:BPMNShape>

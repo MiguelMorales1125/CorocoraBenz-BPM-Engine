@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Motivo de la devolución",
+      "type": "textfield",
+      "id": "Field_reasonCode",
+      "key": "reasonCode",
+      "defaultValue": "SOPORTE_INCOMPLETO",
+      "disabled": true
+    },
+    {
+      "label": "Acción realizada",
+      "type": "select",
+      "id": "Field_correctionAction",
+      "key": "correctionAction",
+      "defaultValue": "FIX_RECORDS",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Completar soportes o corregir novedades",
+          "value": "FIX_RECORDS"
+        },
+        {
+          "label": "Reabrir el periodo",
+          "value": "REQUEST_REOPEN"
+        }
+      ]
+    },
+    {
+      "label": "Detalle de la corrección",
+      "type": "textfield",
+      "id": "Field_correctionNotes",
+      "key": "correctionNotes",
+      "defaultValue": "Soportes cargados",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-correct-changes"
+}

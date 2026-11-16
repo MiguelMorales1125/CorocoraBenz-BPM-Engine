@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Orden de taller",
+      "type": "textfield",
+      "id": "Field_serviceOrderId",
+      "key": "serviceOrderId",
+      "defaultValue": "OT-0001",
+      "disabled": true
+    },
+    {
+      "label": "Trabajo realizado",
+      "type": "textfield",
+      "id": "Field_repairNotes",
+      "key": "repairNotes",
+      "defaultValue": "Se reemplazó el módulo de cámara",
+      "disabled": true
+    },
+    {
+      "label": "Costo del servicio",
+      "type": "number",
+      "id": "Field_serviceCost",
+      "key": "serviceCost",
+      "defaultValue": 350000,
+      "disabled": true
+    },
+    {
+      "label": "Satisfacción del cliente (1 a 5)",
+      "type": "number",
+      "id": "Field_customerSatisfaction",
+      "key": "customerSatisfaction",
+      "defaultValue": 5,
+      "validate": {
+        "required": true,
+        "min": 1,
+        "max": 6
+      }
+    },
+    {
+      "label": "Observación de entrega",
+      "type": "textfield",
+      "id": "Field_deliveryNote",
+      "key": "deliveryNote",
+      "defaultValue": "Vehículo entregado al cliente"
+    }
+  ],
+  "type": "default",
+  "id": "generated-deliver-vehicle"
+}

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Código de respuesta del Banco",
+      "type": "textfield",
+      "id": "Field_bankResponseCode",
+      "key": "bankResponseCode",
+      "defaultValue": "R03 - Cuenta destino inválida",
+      "disabled": true
+    },
+    {
+      "label": "ID del lote",
+      "type": "textfield",
+      "id": "Field_paymentBatchId",
+      "key": "paymentBatchId",
+      "defaultValue": "LOTE-0001",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Corrección o gestión realizada",
+      "type": "textfield",
+      "id": "Field_correction",
+      "key": "correction",
+      "defaultValue": "Se consultó al banco y se corrigió la cuenta",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-fix-bank-batch"
+}

@@ -38,7 +38,12 @@
       <bpmn:incoming>Flow_05</bpmn:incoming>
       <bpmn:outgoing>Flow_06</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="recordResolution" name="Registrar solución en la base de conocimiento" camunda:type="external" camunda:topic="ti.registrarSolucion">
+    <bpmn:serviceTask id="recordResolution" name="Registrar solución en la base de conocimiento" camunda:asyncBefore="true">
+      <bpmn:extensionElements><camunda:connector><camunda:inputOutput>
+        <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets/${ticketId}/solucion</camunda:inputParameter>
+        <camunda:inputParameter name="method">POST</camunda:inputParameter><camunda:inputParameter name="headers"><camunda:map><camunda:entry key="Content-Type">application/json</camunda:entry></camunda:map></camunda:inputParameter>
+        <camunda:inputParameter name="payload">${json.cuerpo(execution, 'rootCause,resolutionSummary')}</camunda:inputParameter><camunda:outputParameter name="knowledgeArticleId">${json.texto(statusCode, response, 'knowledgeArticleId')}</camunda:outputParameter>
+      </camunda:inputOutput><camunda:connectorId>http-connector</camunda:connectorId></camunda:connector></bpmn:extensionElements>
       <bpmn:incoming>Flow_06</bpmn:incoming>
       <bpmn:outgoing>Flow_07</bpmn:outgoing>
     </bpmn:serviceTask>

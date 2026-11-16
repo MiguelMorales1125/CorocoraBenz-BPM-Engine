@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Resumen de la liquidación",
+      "type": "textfield",
+      "id": "Field_payrollSummary",
+      "key": "payrollSummary",
+      "defaultValue": "Liquidación simulada del periodo 2026-11-Q2, sin excepciones automáticas",
+      "disabled": true
+    },
+    {
+      "label": "Total a pagar",
+      "type": "number",
+      "id": "Field_payrollTotal",
+      "key": "payrollTotal",
+      "defaultValue": 1000000,
+      "disabled": true
+    },
+    {
+      "label": "Aprobar liquidación",
+      "type": "checkbox",
+      "id": "Field_payrollApproved",
+      "key": "payrollApproved",
+      "defaultValue": true
+    },
+    {
+      "label": "Motivo o devolución",
+      "type": "textfield",
+      "id": "Field_approvalReason",
+      "key": "approvalReason",
+      "defaultValue": "Aprobada",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-approve-payroll"
+}

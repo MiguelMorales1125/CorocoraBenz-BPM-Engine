@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Trabajo realizado",
+      "type": "textfield",
+      "id": "Field_repairNotes",
+      "key": "repairNotes",
+      "defaultValue": "Se reemplazó el módulo de cámara",
+      "disabled": true
+    },
+    {
+      "label": "Inspección aprobada",
+      "type": "checkbox",
+      "id": "Field_inspectionPassed",
+      "key": "inspectionPassed",
+      "defaultValue": true
+    },
+    {
+      "label": "Resultado de la prueba de ruta",
+      "type": "textfield",
+      "id": "Field_inspectionResults",
+      "key": "inspectionResults",
+      "defaultValue": "Prueba de ruta OK",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-inspect-repair"
+}

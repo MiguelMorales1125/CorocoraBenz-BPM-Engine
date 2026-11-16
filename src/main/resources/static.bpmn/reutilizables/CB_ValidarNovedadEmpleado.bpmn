@@ -46,32 +46,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${changeValid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_06" sourceRef="correctChange" targetRef="reviewMerge" />
-    <bpmn:userTask id="correctChange" name="Corregir novedad y adjuntar soporte" camunda:candidateGroups="gestion-talento-humano">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="employeeId" label="Empleado" type="string" defaultValue="EMP-001">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="reviewComment" label="Observación del analista" type="string" defaultValue="Falta el soporte firmado">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="changeValue" label="Valor u horas corregidas" type="long" defaultValue="2">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="supportAttached" label="Soporte adjunto" type="boolean" defaultValue="true" />
-          <camunda:formField id="changeCorrection" label="Corrección realizada" type="string" defaultValue="Se adjuntó el soporte">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="correctChange" name="Corregir novedad y adjuntar soporte" camunda:candidateGroups="gestion-talento-humano" camunda:formRef="generated-correct-change" camunda:formRefBinding="deployment">
       <bpmn:incoming>Flow_05</bpmn:incoming>
       <bpmn:outgoing>Flow_06</bpmn:outgoing>
     </bpmn:userTask>

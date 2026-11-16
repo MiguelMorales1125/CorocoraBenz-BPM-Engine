@@ -68,46 +68,11 @@
       <bpmn:incoming>Flow_11</bpmn:incoming>
       <bpmn:outgoing>Flow_07</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="repairVehicle" name="Reparar vehículo" camunda:candidateGroups="tecnicos-taller">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="diagnosis" label="Diagnóstico" type="string" defaultValue="Falla en el módulo de cámara">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="repairNotes" label="Trabajo realizado" type="string" defaultValue="Se reemplazó el módulo de cámara">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="serviceCost" label="Costo del servicio" type="long" defaultValue="350000">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-              <camunda:constraint name="min" config="0" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="repairVehicle" name="Reparar vehículo" camunda:candidateGroups="tecnicos-taller" camunda:formRef="generated-repair-vehicle" camunda:formRefBinding="deployment">
       <bpmn:incoming>Flow_07</bpmn:incoming>
       <bpmn:outgoing>Flow_08</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="inspectRepair" name="Inspeccionar reparación" camunda:candidateGroups="inspectores-calidad">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="repairNotes" label="Trabajo realizado" type="string" defaultValue="Se reemplazó el módulo de cámara">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="inspectionPassed" label="Inspección aprobada" type="boolean" defaultValue="true"></camunda:formField>
-          <camunda:formField id="inspectionResults" label="Resultado de la prueba de ruta" type="string" defaultValue="Prueba de ruta OK">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="inspectRepair" name="Inspeccionar reparación" camunda:candidateGroups="inspectores-calidad" camunda:formRef="generated-inspect-repair" camunda:formRefBinding="deployment">
       <bpmn:incoming>Flow_08</bpmn:incoming>
       <bpmn:outgoing>Flow_09</bpmn:outgoing>
     </bpmn:userTask>

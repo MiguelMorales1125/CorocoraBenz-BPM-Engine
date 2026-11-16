@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Empleado",
+      "type": "textfield",
+      "id": "Field_employeeId",
+      "key": "employeeId",
+      "defaultValue": "EMP-001",
+      "disabled": true
+    },
+    {
+      "label": "Observación del analista",
+      "type": "textfield",
+      "id": "Field_reviewComment",
+      "key": "reviewComment",
+      "defaultValue": "Falta el soporte firmado",
+      "disabled": true
+    },
+    {
+      "label": "Valor u horas corregidas",
+      "type": "number",
+      "id": "Field_changeValue",
+      "key": "changeValue",
+      "defaultValue": 2,
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Soporte adjunto",
+      "type": "checkbox",
+      "id": "Field_supportAttached",
+      "key": "supportAttached",
+      "defaultValue": true
+    },
+    {
+      "label": "Corrección realizada",
+      "type": "textfield",
+      "id": "Field_changeCorrection",
+      "key": "changeCorrection",
+      "defaultValue": "Se adjuntó el soporte",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "generated-correct-change"
+}
