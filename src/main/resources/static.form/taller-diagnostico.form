@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "VIN",
+      "type": "textfield",
+      "id": "Field_vin",
+      "key": "vin",
+      "defaultValue": "CB0TEST0000000001",
+      "disabled": true
+    },
+    {
+      "label": "Síntoma reportado",
+      "type": "textarea",
+      "id": "Field_symptom",
+      "key": "symptom",
+      "defaultValue": "La cámara de reversa no muestra imagen",
+      "disabled": true
+    },
+    {
+      "label": "Kilometraje de recepción",
+      "type": "number",
+      "id": "Field_mileageKm",
+      "key": "mileageKm",
+      "defaultValue": 15000,
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Diagnóstico",
+      "type": "textarea",
+      "id": "Field_diagnosis",
+      "key": "diagnosis",
+      "defaultValue": "Falla en el módulo de cámara",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Requiere repuesto adicional",
+      "type": "checkbox",
+      "id": "Field_additionalPartNeeded",
+      "key": "additionalPartNeeded",
+      "defaultValue": false,
+      "validate": {
+        "required": false
+      }
+    },
+    {
+      "label": "Código del repuesto",
+      "type": "textfield",
+      "id": "Field_partCode",
+      "key": "partCode",
+      "defaultValue": "CAM-123",
+      "description": "Solo si requiere repuesto adicional",
+      "validate": {
+        "required": false
+      }
+    }
+  ],
+  "type": "default",
+  "id": "taller-diagnostico"
+}

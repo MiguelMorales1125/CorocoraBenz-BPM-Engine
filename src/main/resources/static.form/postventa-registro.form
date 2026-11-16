@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "VIN",
+      "type": "textfield",
+      "id": "Field_vin",
+      "key": "vin",
+      "defaultValue": "CB0TEST0000000001",
+      "disabled": true
+    },
+    {
+      "label": "Cliente",
+      "type": "textfield",
+      "id": "Field_customerName",
+      "key": "customerName",
+      "defaultValue": "Cliente de prueba",
+      "disabled": true
+    },
+    {
+      "label": "Tipo de servicio",
+      "type": "textfield",
+      "id": "Field_serviceType",
+      "key": "serviceType",
+      "defaultValue": "Garantía",
+      "disabled": true
+    },
+    {
+      "label": "Kilometraje",
+      "type": "number",
+      "id": "Field_mileageKm",
+      "key": "mileageKm",
+      "defaultValue": 15000,
+      "disabled": true
+    },
+    {
+      "label": "Síntoma reportado",
+      "type": "textarea",
+      "id": "Field_symptom",
+      "key": "symptom",
+      "defaultValue": "La cámara de reversa no muestra imagen",
+      "disabled": true
+    },
+    {
+      "label": "Taller asignado",
+      "type": "select",
+      "id": "Field_dealerId",
+      "key": "dealerId",
+      "defaultValue": "TALLER-BOG-01",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Taller Bogotá Norte",
+          "value": "TALLER-BOG-01"
+        },
+        {
+          "label": "Taller Medellín",
+          "value": "TALLER-MED-01"
+        },
+        {
+          "label": "Taller Cali",
+          "value": "TALLER-CAL-01"
+        }
+      ]
+    },
+    {
+      "label": "Observación del asesor",
+      "type": "textarea",
+      "id": "Field_registrationNote",
+      "key": "registrationNote",
+      "defaultValue": "Cliente reporta falla en la cámara de reversa",
+      "validate": {
+        "required": false
+      }
+    }
+  ],
+  "type": "default",
+  "id": "postventa-registro"
+}

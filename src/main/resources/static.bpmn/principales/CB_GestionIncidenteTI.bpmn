@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_CB_GestionIncidenteTI" targetNamespace="https://corocora-benz.example/bpmn" exporter="Camunda Modeler" exporterVersion="5.52.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:message id="Message_SolucionNotificada" name="SolucionNotificada" />
+  <bpmn:collaboration id="Collaboration_CB_GestionIncidenteTI">
+    <bpmn:participant id="Participant_CorocoraBenz" name="Corocora Benz" processRef="CB_GestionIncidenteTI" />
+  </bpmn:collaboration>
+  <bpmn:process id="CB_GestionIncidenteTI" name="Corocora Benz - Gestión de Incidentes TI" isExecutable="true" camunda:historyTimeToLive="30">
+    <bpmn:laneSet id="LaneSet_CB_GestionIncidenteTI">
+      <bpmn:lane id="Lane_Usuario" name="Usuario Interno Solicitante">
+        <bpmn:flowNodeRef>startIncident</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>confirmSolution</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>noResponse</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Mesa" name="Mesa de Servicio">
+        <bpmn:flowNodeRef>createTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>classifyIncident</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>triageIncident</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>resolveMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>resolveIncident</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>slaTimer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>notifySolution</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>solutionConfirmed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>notifyAutoClose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>closeAutoTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>closeTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>incidentEnd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>autoCloseEnd</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Responsable" name="Responsable del Servicio TI">
+        <bpmn:flowNodeRef>reviewSla</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="startIncident" name="Incidente de TI reportado" camunda:formRef="ti-reporte" camunda:formRefBinding="deployment">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="createTicket" name="Registrar ticket del incidente" camunda:type="external" camunda:topic="ti.crearTicket">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:businessRuleTask id="classifyIncident" name="Clasificar prioridad y plazo" camunda:resultVariable="incidentDecision" camunda:decisionRef="CB_ClasificarIncidenteTI" camunda:mapDecisionResult="singleResult">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="safetyImpact">${execution.hasVariable('safetyImpact') &amp;&amp; safetyImpact == true}</camunda:inputParameter>
+          <camunda:outputParameter name="priority">${incidentDecision.priority}</camunda:outputParameter>
+          <camunda:outputParameter name="targetDuration">${incidentDecision.targetDuration}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:userTask id="triageIncident" name="Validar clasificación y asignar grupo" camunda:formRef="ti-triaje" camunda:formRefBinding="deployment" camunda:candidateGroups="mesa-servicio">
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="resolveMerge">
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="resolveIncident" name="Resolver incidente técnico" calledElement="CB_ResolverIncidenteTI" camunda:calledElementBinding="deployment">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in source="ticketId" target="ticketId" />
+        <camunda:in source="technicalDomain" target="technicalDomain" />
+        <camunda:in source="priority" target="priority" />
+        <camunda:in source="description" target="description" />
+        <camunda:out source="rootCause" target="rootCause" />
+        <camunda:out source="resolutionSummary" target="resolutionSummary" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:outgoing>Flow_08</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:boundaryEvent id="slaTimer" name="Plazo de resolución vencido" attachedToRef="resolveIncident">
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${targetDuration}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="reviewSla" name="Revisar incidente con plazo vencido" camunda:candidateGroups="responsables-ti">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="ticketId" label="Ticket" type="string" defaultValue="TI-0001">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="priority" label="Prioridad" type="string" defaultValue="P3">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="recoveryPlan" label="Plan de atención" type="string" defaultValue="Escalar al fabricante de la cámara">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="newOwner" label="Nuevo responsable" type="string" defaultValue="demo" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateThrowEvent id="notifySolution" name="Solución notificada al usuario">
+      <bpmn:incoming>Flow_08</bpmn:incoming>
+      <bpmn:outgoing>Flow_09</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_SolucionNotificada" messageRef="Message_SolucionNotificada" camunda:delegateExpression="${enviarNotificacionDelegate}" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:userTask id="confirmSolution" name="Confirmar solución del incidente" camunda:assignee="${requesterId}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="userConfirmed" label="¿La solución resolvió el incidente?" type="boolean" defaultValue="true"></camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_09</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="noResponse" name="Sin respuesta en 24 h" attachedToRef="confirmSolution">
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT24H</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:exclusiveGateway id="solutionConfirmed" name="¿Solución confirmada?">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="startIncident" targetRef="createTicket" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="createTicket" targetRef="classifyIncident" />
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="classifyIncident" targetRef="triageIncident" />
+    <bpmn:sequenceFlow id="Flow_04" sourceRef="triageIncident" targetRef="resolveMerge" />
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="resolveMerge" targetRef="resolveIncident" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="slaTimer" targetRef="reviewSla" />
+    <bpmn:sequenceFlow id="Flow_07" sourceRef="reviewSla" targetRef="resolveMerge" />
+    <bpmn:sequenceFlow id="Flow_08" sourceRef="resolveIncident" targetRef="notifySolution" />
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="notifySolution" targetRef="confirmSolution" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="confirmSolution" targetRef="solutionConfirmed" />
+    <bpmn:sequenceFlow id="Flow_13" name="Sí" sourceRef="solutionConfirmed" targetRef="closeTicket">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${userConfirmed == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_14" name="No, reabrir" sourceRef="solutionConfirmed" targetRef="resolveMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${userConfirmed == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="noResponse" targetRef="notifyAutoClose" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="closeTicket" targetRef="incidentEnd" />
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="notifyAutoClose" targetRef="closeAutoTicket" />
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="closeAutoTicket" targetRef="autoCloseEnd" />
+    <bpmn:serviceTask id="notifyAutoClose" name="Notificar cierre por falta de respuesta" camunda:delegateExpression="${enviarNotificacionDelegate}">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="closeAutoTicket" name="Cerrar ticket por falta de respuesta" camunda:type="external" camunda:topic="ti.cerrarTicket">
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="closeTicket" name="Cerrar ticket verificado" camunda:type="external" camunda:topic="ti.cerrarTicket">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="incidentEnd" name="Incidente resuelto y cerrado">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="autoCloseEnd" name="Ticket cerrado por falta de respuesta">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_CB_GestionIncidenteTI">
+    <bpmndi:BPMNPlane id="Plane_CB_GestionIncidenteTI" bpmnElement="Collaboration_CB_GestionIncidenteTI">
+      <bpmndi:BPMNShape id="Participant_CorocoraBenz_di" bpmnElement="Participant_CorocoraBenz" isHorizontal="true">
+        <dc:Bounds x="160" y="120" width="2560" height="820" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Responsable_di" bpmnElement="Lane_Responsable" isHorizontal="true">
+        <dc:Bounds x="190" y="740" width="2530" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Mesa_di" bpmnElement="Lane_Mesa" isHorizontal="true">
+        <dc:Bounds x="190" y="320" width="2530" height="420" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Usuario_di" bpmnElement="Lane_Usuario" isHorizontal="true">
+        <dc:Bounds x="190" y="120" width="2530" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startIncident_di" bpmnElement="startIncident">
+        <dc:Bounds x="282" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="245" y="243" width="110" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="createTicket_di" bpmnElement="createTicket">
+        <dc:Bounds x="435" y="490" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="classifyIncident_di" bpmnElement="classifyIncident">
+        <dc:Bounds x="625" y="490" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="triageIncident_di" bpmnElement="triageIncident">
+        <dc:Bounds x="815" y="490" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="resolveMerge_di" bpmnElement="resolveMerge" isMarkerVisible="true">
+        <dc:Bounds x="1035" y="505" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="resolveIncident_di" bpmnElement="resolveIncident">
+        <dc:Bounds x="1195" y="490" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewSla_di" bpmnElement="reviewSla">
+        <dc:Bounds x="1385" y="800" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="notifySolution_di" bpmnElement="notifySolution">
+        <dc:Bounds x="1422" y="512" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1390" y="555" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="confirmSolution_di" bpmnElement="confirmSolution">
+        <dc:Bounds x="1605" y="180" width="110" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1605" y="263" width="110" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="solutionConfirmed_di" bpmnElement="solutionConfirmed" isMarkerVisible="true">
+        <dc:Bounds x="1985" y="390" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1955" y="445" width="110" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="notifyAutoClose_di" bpmnElement="notifyAutoClose">
+        <dc:Bounds x="1985" y="603" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="closeAutoTicket_di" bpmnElement="closeAutoTicket">
+        <dc:Bounds x="2175" y="603" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="closeTicket_di" bpmnElement="closeTicket">
+        <dc:Bounds x="2335" y="375" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="incidentEnd_di" bpmnElement="incidentEnd">
+        <dc:Bounds x="2562" y="397" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2532" y="438" width="96" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="autoCloseEnd_di" bpmnElement="autoCloseEnd">
+        <dc:Bounds x="2562" y="625" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2535" y="666" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="noResponse_di" bpmnElement="noResponse">
+        <dc:Bounds x="1642" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1679" y="273" width="108" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="slaTimer_di" bpmnElement="slaTimer">
+        <dc:Bounds x="1257" y="552" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1294" y="580" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="318" y="220" />
+        <di:waypoint x="490" y="220" />
+        <di:waypoint x="490" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="545" y="530" />
+        <di:waypoint x="625" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="735" y="530" />
+        <di:waypoint x="815" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <di:waypoint x="925" y="530" />
+        <di:waypoint x="1035" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="1085" y="530" />
+        <di:waypoint x="1195" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="1275" y="588" />
+        <di:waypoint x="1275" y="840" />
+        <di:waypoint x="1385" y="840" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <di:waypoint x="1440" y="880" />
+        <di:waypoint x="1440" y="911" />
+        <di:waypoint x="1060" y="911" />
+        <di:waypoint x="1060" y="555" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_di" bpmnElement="Flow_08">
+        <di:waypoint x="1305" y="530" />
+        <di:waypoint x="1422" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <di:waypoint x="1458" y="530" />
+        <di:waypoint x="1550" y="530" />
+        <di:waypoint x="1550" y="220" />
+        <di:waypoint x="1605" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1715" y="220" />
+        <di:waypoint x="1850" y="220" />
+        <di:waypoint x="1850" y="415" />
+        <di:waypoint x="1985" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="2035" y="415" />
+        <di:waypoint x="2335" y="415" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2060" y="395" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="2010" y="390" />
+        <di:waypoint x="2010" y="355" />
+        <di:waypoint x="1060" y="355" />
+        <di:waypoint x="1060" y="505" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2016" y="368" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="1660" y="278" />
+        <di:waypoint x="1660" y="643" />
+        <di:waypoint x="1985" y="643" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="2445" y="415" />
+        <di:waypoint x="2562" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="2095" y="643" />
+        <di:waypoint x="2175" y="643" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <di:waypoint x="2285" y="643" />
+        <di:waypoint x="2562" y="643" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

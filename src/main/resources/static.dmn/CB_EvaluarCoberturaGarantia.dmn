@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<dmn:definitions xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" id="Definitions_CB_EvaluarCoberturaGarantia" name="Decisiones de garantía y campañas" namespace="http://camunda.org/schema/1.0/dmn" expressionLanguage="https://www.omg.org/spec/DMN/20191111/FEEL/" typeLanguage="https://www.omg.org/spec/DMN/20191111/FEEL/" exporter="Camunda Modeler" exporterVersion="5.x">
+  <dmn:decision camunda:historyTimeToLive="30" id="CB_EvaluarCoberturaGarantia" name="Clasificar cobertura de garantía y campañas">
+    <dmn:description>Clasifica la solicitud como campaña activa, reparación cubierta por garantía o servicio que requiere cotización. Una campaña activa tiene precedencia sobre la cobertura ordinaria.</dmn:description>
+<dmn:decisionTable id="Table_CB_EvaluarCoberturaGarantia" hitPolicy="UNIQUE">
+      <dmn:input id="Input_1_CB_EvaluarCoberturaGarantia" label="¿Hay campaña activa para el VIN?">
+        <dmn:inputExpression id="InputExpression_1_CB_EvaluarCoberturaGarantia" typeRef="boolean">
+          <dmn:text>campaignActive</dmn:text>
+        </dmn:inputExpression>
+        <dmn:inputValues>
+          <dmn:text>false, true</dmn:text>
+        </dmn:inputValues>
+      </dmn:input>
+      <dmn:input id="Input_2_CB_EvaluarCoberturaGarantia" label="¿Cumple condiciones de garantía?">
+        <dmn:inputExpression id="InputExpression_2_CB_EvaluarCoberturaGarantia" typeRef="boolean">
+          <dmn:text>warrantyEligible</dmn:text>
+        </dmn:inputExpression>
+        <dmn:inputValues>
+          <dmn:text>false, true</dmn:text>
+        </dmn:inputValues>
+      </dmn:input>
+      <dmn:output id="Output_1_CB_EvaluarCoberturaGarantia" name="coverageStatus" label="Resultado de cobertura" typeRef="string">
+        <dmn:outputValues>
+          <dmn:text>"CAMPANA_ACTIVA", "CUBIERTO_POR_GARANTIA", "REQUIERE_COTIZACION"</dmn:text>
+        </dmn:outputValues>
+      </dmn:output>
+      <dmn:output id="Output_2_CB_EvaluarCoberturaGarantia" name="coverageReason" label="Motivo de la decisión" typeRef="string" />
+      <dmn:rule id="Rule_1_CB_EvaluarCoberturaGarantia">
+        <dmn:inputEntry id="InputEntry_1_1_CB_EvaluarCoberturaGarantia">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_1_2_CB_EvaluarCoberturaGarantia">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_1_1_CB_EvaluarCoberturaGarantia">
+          <dmn:text>"CAMPANA_ACTIVA"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_1_2_CB_EvaluarCoberturaGarantia">
+          <dmn:text>"Campaña activa para el VIN"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_2_CB_EvaluarCoberturaGarantia">
+        <dmn:inputEntry id="InputEntry_2_1_CB_EvaluarCoberturaGarantia">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_2_2_CB_EvaluarCoberturaGarantia">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_2_1_CB_EvaluarCoberturaGarantia">
+          <dmn:text>"CUBIERTO_POR_GARANTIA"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_2_2_CB_EvaluarCoberturaGarantia">
+          <dmn:text>"Cumple las condiciones de garantía configuradas"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_3_CB_EvaluarCoberturaGarantia">
+        <dmn:inputEntry id="InputEntry_3_1_CB_EvaluarCoberturaGarantia">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_3_2_CB_EvaluarCoberturaGarantia">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_3_1_CB_EvaluarCoberturaGarantia">
+          <dmn:text>"REQUIERE_COTIZACION"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_3_2_CB_EvaluarCoberturaGarantia">
+          <dmn:text>"Fuera de cobertura; requiere cotización"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+    </dmn:decisionTable>
+  </dmn:decision>
+<dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_CB_EvaluarCoberturaGarantia" name="DRD - Cobertura de garantía y campañas">
+      <dmndi:Size width="660" height="260" />
+<dmndi:DMNShape id="DMNShape_CB_EvaluarCoberturaGarantia" dmnElementRef="CB_EvaluarCoberturaGarantia">
+        <dc:Bounds x="390" y="80" width="220" height="100" />
+      </dmndi:DMNShape>
+</dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

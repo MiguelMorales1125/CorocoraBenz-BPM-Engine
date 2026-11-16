@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "VIN",
+      "type": "textfield",
+      "id": "Field_vin",
+      "key": "vin",
+      "defaultValue": "CB0TEST0000000001",
+      "disabled": true
+    },
+    {
+      "label": "Kilometraje",
+      "type": "number",
+      "id": "Field_mileageKm",
+      "key": "mileageKm",
+      "defaultValue": 15000,
+      "disabled": true
+    },
+    {
+      "label": "Síntoma reportado",
+      "type": "textarea",
+      "id": "Field_symptom",
+      "key": "symptom",
+      "defaultValue": "La cámara de reversa no muestra imagen",
+      "disabled": true
+    },
+    {
+      "label": "Resultado DMN",
+      "type": "textfield",
+      "id": "Field_coverageStatus",
+      "key": "coverageStatus",
+      "defaultValue": "CAMPANA_ACTIVA",
+      "disabled": true
+    },
+    {
+      "label": "Motivo DMN",
+      "type": "textfield",
+      "id": "Field_coverageReason",
+      "key": "coverageReason",
+      "defaultValue": "VIN incluido en campaña activa de cámara de reversa",
+      "disabled": true
+    },
+    {
+      "label": "Aprobar atención por garantía o campaña",
+      "type": "checkbox",
+      "id": "Field_coverageApproved",
+      "key": "coverageApproved",
+      "defaultValue": true,
+      "validate": {
+        "required": false
+      }
+    },
+    {
+      "label": "Justificación",
+      "type": "textarea",
+      "id": "Field_warrantyNote",
+      "key": "warrantyNote",
+      "defaultValue": "Aplica campaña de cámara de reversa",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "postventa-garantia"
+}

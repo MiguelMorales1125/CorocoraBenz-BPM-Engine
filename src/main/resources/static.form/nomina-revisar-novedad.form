@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Empleado",
+      "type": "textfield",
+      "id": "Field_employeeId",
+      "key": "employeeId",
+      "defaultValue": "EMP-001",
+      "disabled": true
+    },
+    {
+      "label": "Tipo de novedad",
+      "type": "textfield",
+      "id": "Field_changeType",
+      "key": "changeType",
+      "defaultValue": "Horas extra",
+      "disabled": true
+    },
+    {
+      "label": "Valor u horas",
+      "type": "number",
+      "id": "Field_changeValue",
+      "key": "changeValue",
+      "defaultValue": 2,
+      "disabled": true
+    },
+    {
+      "label": "Soporte adjunto",
+      "type": "checkbox",
+      "id": "Field_supportAttached",
+      "key": "supportAttached",
+      "defaultValue": true,
+      "disabled": true
+    },
+    {
+      "label": "Novedad válida",
+      "type": "checkbox",
+      "id": "Field_changeValid",
+      "key": "changeValid",
+      "defaultValue": true,
+      "validate": {
+        "required": false
+      }
+    },
+    {
+      "label": "Observación",
+      "type": "textarea",
+      "id": "Field_reviewComment",
+      "key": "reviewComment",
+      "defaultValue": "Soporte verificado",
+      "validate": {
+        "required": false
+      }
+    }
+  ],
+  "type": "default",
+  "id": "nomina-revisar-novedad"
+}

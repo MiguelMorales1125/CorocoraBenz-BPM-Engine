@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='utf-8'?>
+<dmn:definitions xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" id="Definitions_CB_ClasificarIncidenteTI" name="Decisiones de gestión de TI" namespace="http://camunda.org/schema/1.0/dmn" expressionLanguage="https://www.omg.org/spec/DMN/20191111/FEEL/" typeLanguage="https://www.omg.org/spec/DMN/20191111/FEEL/" exporter="Camunda Modeler" exporterVersion="5.x">
+  <dmn:decision camunda:historyTimeToLive="30" id="CB_ClasificarIncidenteTI" name="Clasificar prioridad y plazo del incidente">
+    <dmn:description>Clasifica prioridad y tiempo objetivo de resolución. El orden de reglas es prioritario: primero seguridad, después la combinación de impacto alto y urgencia alta, y luego los criterios P2.</dmn:description>
+<dmn:decisionTable id="Table_CB_ClasificarIncidenteTI" hitPolicy="FIRST">
+      <dmn:input id="Input_1_CB_ClasificarIncidenteTI" label="¿Afecta la seguridad?">
+        <dmn:inputExpression id="InputExpression_1_CB_ClasificarIncidenteTI" typeRef="boolean">
+          <dmn:text>safetyImpact</dmn:text>
+        </dmn:inputExpression>
+        <dmn:inputValues>
+          <dmn:text>false, true</dmn:text>
+        </dmn:inputValues>
+      </dmn:input>
+      <dmn:input id="Input_2_CB_ClasificarIncidenteTI" label="Nivel de impacto">
+        <dmn:inputExpression id="InputExpression_2_CB_ClasificarIncidenteTI" typeRef="string">
+          <dmn:text>impact</dmn:text>
+        </dmn:inputExpression>
+        <dmn:inputValues>
+          <dmn:text>"Bajo", "Medio", "Alto"</dmn:text>
+        </dmn:inputValues>
+      </dmn:input>
+      <dmn:input id="Input_3_CB_ClasificarIncidenteTI" label="Nivel de urgencia">
+        <dmn:inputExpression id="InputExpression_3_CB_ClasificarIncidenteTI" typeRef="string">
+          <dmn:text>urgency</dmn:text>
+        </dmn:inputExpression>
+        <dmn:inputValues>
+          <dmn:text>"Baja", "Media", "Alta"</dmn:text>
+        </dmn:inputValues>
+      </dmn:input>
+      <dmn:input id="Input_4_CB_ClasificarIncidenteTI" label="Cantidad de equipos afectados">
+        <dmn:inputExpression id="InputExpression_4_CB_ClasificarIncidenteTI" typeRef="integer">
+          <dmn:text>affectedTeams</dmn:text>
+        </dmn:inputExpression>
+        <dmn:inputValues>
+          <dmn:text>&gt;= 1</dmn:text>
+        </dmn:inputValues>
+      </dmn:input>
+      <dmn:output id="Output_1_CB_ClasificarIncidenteTI" name="priority" label="Prioridad de atención" typeRef="string">
+        <dmn:outputValues>
+          <dmn:text>"P1", "P2", "P3"</dmn:text>
+        </dmn:outputValues>
+      </dmn:output>
+      <dmn:output id="Output_2_CB_ClasificarIncidenteTI" name="targetDuration" label="Tiempo objetivo de resolución" typeRef="string">
+        <dmn:outputValues>
+          <dmn:text>"PT2H", "PT8H", "PT24H"</dmn:text>
+        </dmn:outputValues>
+      </dmn:output>
+      <dmn:rule id="Rule_1_CB_ClasificarIncidenteTI">
+        <dmn:inputEntry id="InputEntry_1_1_CB_ClasificarIncidenteTI">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_1_2_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_1_3_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_1_4_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_1_1_CB_ClasificarIncidenteTI">
+          <dmn:text>"P1"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_1_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"PT2H"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_2_CB_ClasificarIncidenteTI">
+        <dmn:inputEntry id="InputEntry_2_1_CB_ClasificarIncidenteTI">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_2_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"Alto"</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_2_3_CB_ClasificarIncidenteTI">
+          <dmn:text>"Alta"</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_2_4_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_2_1_CB_ClasificarIncidenteTI">
+          <dmn:text>"P1"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_2_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"PT2H"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_3_CB_ClasificarIncidenteTI">
+        <dmn:inputEntry id="InputEntry_3_1_CB_ClasificarIncidenteTI">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_3_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"Alto"</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_3_3_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_3_4_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_3_1_CB_ClasificarIncidenteTI">
+          <dmn:text>"P2"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_3_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"PT8H"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_4_CB_ClasificarIncidenteTI">
+        <dmn:inputEntry id="InputEntry_4_1_CB_ClasificarIncidenteTI">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_4_2_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_4_3_CB_ClasificarIncidenteTI">
+          <dmn:text>"Alta"</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_4_4_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_4_1_CB_ClasificarIncidenteTI">
+          <dmn:text>"P2"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_4_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"PT8H"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_5_CB_ClasificarIncidenteTI">
+        <dmn:inputEntry id="InputEntry_5_1_CB_ClasificarIncidenteTI">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_5_2_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_5_3_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_5_4_CB_ClasificarIncidenteTI">
+          <dmn:text>&gt; 1</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_5_1_CB_ClasificarIncidenteTI">
+          <dmn:text>"P2"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_5_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"PT8H"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+      <dmn:rule id="Rule_6_CB_ClasificarIncidenteTI">
+        <dmn:inputEntry id="InputEntry_6_1_CB_ClasificarIncidenteTI">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_6_2_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_6_3_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="InputEntry_6_4_CB_ClasificarIncidenteTI">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="OutputEntry_6_1_CB_ClasificarIncidenteTI">
+          <dmn:text>"P3"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="OutputEntry_6_2_CB_ClasificarIncidenteTI">
+          <dmn:text>"PT24H"</dmn:text>
+        </dmn:outputEntry>
+      </dmn:rule>
+    </dmn:decisionTable>
+  </dmn:decision>
+<dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_CB_ClasificarIncidenteTI" name="DRD - Prioridad de incidentes TI">
+      <dmndi:Size width="660" height="350" />
+<dmndi:DMNShape id="DMNShape_CB_ClasificarIncidenteTI" dmnElementRef="CB_ClasificarIncidenteTI">
+        <dc:Bounds x="390" y="120" width="220" height="110" />
+      </dmndi:DMNShape>
+</dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

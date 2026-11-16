@@ -1,0 +1,73 @@
+{
+  "components": [
+    {
+      "label": "Ticket",
+      "type": "textfield",
+      "id": "Field_ticketId",
+      "key": "ticketId",
+      "defaultValue": "TI-0001",
+      "disabled": true
+    },
+    {
+      "label": "Sistema afectado",
+      "type": "textfield",
+      "id": "Field_systemName",
+      "key": "systemName",
+      "defaultValue": "Software del vehículo",
+      "disabled": true
+    },
+    {
+      "label": "Descripción",
+      "type": "textarea",
+      "id": "Field_description",
+      "key": "description",
+      "defaultValue": "La cámara de reversa no carga",
+      "disabled": true
+    },
+    {
+      "label": "Prioridad calculada (DMN)",
+      "type": "textfield",
+      "id": "Field_priority",
+      "key": "priority",
+      "defaultValue": "P3",
+      "disabled": true
+    },
+    {
+      "label": "Plazo de resolución (DMN)",
+      "type": "textfield",
+      "id": "Field_targetDuration",
+      "key": "targetDuration",
+      "defaultValue": "PT24H",
+      "disabled": true
+    },
+    {
+      "label": "Grupo de atención",
+      "values": [
+        {
+          "label": "Soporte TI Nivel 1",
+          "value": "catalogoNivel1"
+        },
+        {
+          "label": "Soporte especializado",
+          "value": "especializado"
+        }
+      ],
+      "type": "select",
+      "id": "Field_technicalDomain",
+      "key": "technicalDomain",
+      "defaultValue": "catalogoNivel1",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "schemaVersion": 19,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "type": "default",
+  "id": "ti-triaje"
+}

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_CB_ResolverIncidenteTI" targetNamespace="https://corocora-benz.example/bpmn" exporter="Camunda Modeler" exporterVersion="5.52.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:collaboration id="Collaboration_CB_ResolverIncidenteTI">
+    <bpmn:participant id="Participant_CorocoraBenz" name="Corocora Benz" processRef="CB_ResolverIncidenteTI" />
+  </bpmn:collaboration>
+  <bpmn:process id="CB_ResolverIncidenteTI" name="Corocora Benz - Resolución Técnica TI" isExecutable="true" camunda:historyTimeToLive="30">
+    <bpmn:laneSet id="LaneSet_CB_ResolverIncidenteTI">
+      <bpmn:lane id="Lane_N1" name="Soporte TI Nivel 1">
+        <bpmn:flowNodeRef>startResolver</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>scopeN1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>resolveN1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>resolvedMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>recordResolution</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>resolutionEnd</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Especializado" name="Soporte Especializado">
+        <bpmn:flowNodeRef>resolveSpecialist</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="startResolver" name="Incidente asignado">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="scopeN1" name="¿Dentro del alcance de Nivel 1?">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="resolveN1" name="Diagnosticar y resolver" camunda:formRef="ti-diagnostico" camunda:formRefBinding="deployment" camunda:candidateGroups="soporte-ti-n1">
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="resolveSpecialist" name="Analizar causa raíz y resolver" camunda:formRef="ti-diagnostico" camunda:formRefBinding="deployment" camunda:candidateGroups="soporte-ti-especializado">
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="resolvedMerge">
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="recordResolution" name="Registrar solución en la base de conocimiento" camunda:type="external" camunda:topic="ti.registrarSolucion">
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="resolutionEnd" name="Solución registrada">
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="startResolver" targetRef="scopeN1" />
+    <bpmn:sequenceFlow id="Flow_02" name="Sí" sourceRef="scopeN1" targetRef="resolveN1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${technicalDomain == 'catalogoNivel1'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_03" name="No" sourceRef="scopeN1" targetRef="resolveSpecialist">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${technicalDomain != 'catalogoNivel1'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_04" sourceRef="resolveN1" targetRef="resolvedMerge" />
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="resolveSpecialist" targetRef="resolvedMerge" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="resolvedMerge" targetRef="recordResolution" />
+    <bpmn:sequenceFlow id="Flow_07" sourceRef="recordResolution" targetRef="resolutionEnd" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_CB_ResolverIncidenteTI">
+    <bpmndi:BPMNPlane id="Plane_CB_ResolverIncidenteTI" bpmnElement="Collaboration_CB_ResolverIncidenteTI">
+      <bpmndi:BPMNShape id="Participant_CorocoraBenz_di" bpmnElement="Participant_CorocoraBenz" isHorizontal="true">
+        <dc:Bounds x="160" y="120" width="1230" height="400" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_N1_di" bpmnElement="Lane_N1" isHorizontal="true">
+        <dc:Bounds x="190" y="120" width="1200" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Especializado_di" bpmnElement="Lane_Especializado" isHorizontal="true">
+        <dc:Bounds x="190" y="320" width="1200" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startResolver_di" bpmnElement="startResolver">
+        <dc:Bounds x="282" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="245" y="243" width="110" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="scopeN1_di" bpmnElement="scopeN1" isMarkerVisible="true">
+        <dc:Bounds x="465" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="435" y="161" width="110" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="resolveN1_di" bpmnElement="resolveN1">
+        <dc:Bounds x="625" y="180" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="resolveSpecialist_di" bpmnElement="resolveSpecialist">
+        <dc:Bounds x="625" y="380" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="resolvedMerge_di" bpmnElement="resolvedMerge" isMarkerVisible="true">
+        <dc:Bounds x="845" y="195" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="recordResolution_di" bpmnElement="recordResolution">
+        <dc:Bounds x="1005" y="180" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="resolutionEnd_di" bpmnElement="resolutionEnd">
+        <dc:Bounds x="1232" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1195" y="243" width="110" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="318" y="220" />
+        <di:waypoint x="465" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="515" y="220" />
+        <di:waypoint x="625" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="521" y="200" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="490" y="245" />
+        <di:waypoint x="490" y="420" />
+        <di:waypoint x="625" y="420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="496" y="326" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <di:waypoint x="735" y="220" />
+        <di:waypoint x="845" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="735" y="420" />
+        <di:waypoint x="870" y="420" />
+        <di:waypoint x="870" y="245" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="895" y="220" />
+        <di:waypoint x="1005" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <di:waypoint x="1115" y="220" />
+        <di:waypoint x="1232" y="220" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

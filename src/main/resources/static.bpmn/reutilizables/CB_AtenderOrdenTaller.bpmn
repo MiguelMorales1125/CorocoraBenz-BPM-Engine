@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_CB_AtenderOrdenTaller" targetNamespace="https://corocora-benz.example/bpmn" exporter="Camunda Modeler" exporterVersion="5.52.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:message id="Message_RepuestoRecibido" name="RepuestoRecibido" />
+  <bpmn:collaboration id="Collaboration_CB_AtenderOrdenTaller">
+    <bpmn:participant id="Participant_CorocoraBenz" name="Corocora Benz" processRef="CB_AtenderOrdenTaller" />
+    <bpmn:participant id="Participant_Bodega" name="Bodega de Repuestos" />
+    <bpmn:messageFlow id="MessageFlow_SolicitudRepuesto" sourceRef="requestPart" targetRef="Participant_Bodega" />
+    <bpmn:messageFlow id="MessageFlow_RepuestoRecibido" sourceRef="Participant_Bodega" targetRef="receivePart" />
+  </bpmn:collaboration>
+  <bpmn:process id="CB_AtenderOrdenTaller" name="Corocora Benz - Orden de Taller" isExecutable="true" camunda:historyTimeToLive="30">
+    <bpmn:laneSet id="LaneSet_CB_AtenderOrdenTaller">
+      <bpmn:lane id="Lane_Inspector" name="Inspector de Calidad">
+        <bpmn:flowNodeRef>inspectRepair</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>inspectionOk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>workshopEnd</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Tecnico" name="Técnico de Taller">
+        <bpmn:flowNodeRef>startWorkshop</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>diagnoseVehicle</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>partNeeded</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>requestPart</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>receivePart</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>repairMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>repairVehicle</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="startWorkshop" name="Orden de taller recibida">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="diagnoseVehicle" name="Recibir y diagnosticar vehículo" camunda:formRef="taller-diagnostico" camunda:formRefBinding="deployment" camunda:candidateGroups="tecnicos-taller">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="partNeeded" name="¿Requiere repuesto adicional?">
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="requestPart" name="Solicitar repuesto a bodega" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${sistemas.tallerBodega}/api/solicitudes-repuesto</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="Accept">application/json</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">${json.cuerpo(execution, 'vin,partCode')}</camunda:inputParameter>
+            <camunda:outputParameter name="partRequestId">${json.texto(statusCode, response, 'partRequestId')}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="receivePart" name="Repuesto recibido">
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_RepuestoRecibido" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="repairMerge">
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="repairVehicle" name="Reparar vehículo" camunda:candidateGroups="tecnicos-taller">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="diagnosis" label="Diagnóstico" type="string" defaultValue="Falla en el módulo de cámara">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="repairNotes" label="Trabajo realizado" type="string" defaultValue="Se reemplazó el módulo de cámara">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="serviceCost" label="Costo del servicio" type="long" defaultValue="350000">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+              <camunda:constraint name="min" config="0" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+      <bpmn:outgoing>Flow_08</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="inspectRepair" name="Inspeccionar reparación" camunda:candidateGroups="inspectores-calidad">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="repairNotes" label="Trabajo realizado" type="string" defaultValue="Se reemplazó el módulo de cámara">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="inspectionPassed" label="Inspección aprobada" type="boolean" defaultValue="true"></camunda:formField>
+          <camunda:formField id="inspectionResults" label="Resultado de la prueba de ruta" type="string" defaultValue="Prueba de ruta OK">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_08</bpmn:incoming>
+      <bpmn:outgoing>Flow_09</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="inspectionOk" name="¿Inspección aprobada?">
+      <bpmn:incoming>Flow_09</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="workshopEnd" name="Vehículo reparado e inspeccionado">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="startWorkshop" targetRef="diagnoseVehicle" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="diagnoseVehicle" targetRef="partNeeded" />
+    <bpmn:sequenceFlow id="Flow_03" name="Sí" sourceRef="partNeeded" targetRef="requestPart">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${additionalPartNeeded == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_04" name="No" sourceRef="partNeeded" targetRef="repairMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${additionalPartNeeded == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="requestPart" targetRef="receivePart" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="receivePart" targetRef="repairMerge" />
+    <bpmn:sequenceFlow id="Flow_11" name="No, repetir reparación" sourceRef="inspectionOk" targetRef="repairMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${inspectionPassed == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_07" sourceRef="repairMerge" targetRef="repairVehicle" />
+    <bpmn:sequenceFlow id="Flow_08" sourceRef="repairVehicle" targetRef="inspectRepair" />
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="inspectRepair" targetRef="inspectionOk" />
+    <bpmn:sequenceFlow id="Flow_10" name="Sí" sourceRef="inspectionOk" targetRef="workshopEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${inspectionPassed == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_CB_AtenderOrdenTaller">
+    <bpmndi:BPMNPlane id="Plane_CB_AtenderOrdenTaller" bpmnElement="Collaboration_CB_AtenderOrdenTaller">
+      <bpmndi:BPMNShape id="Participant_CorocoraBenz_di" bpmnElement="Participant_CorocoraBenz" isHorizontal="true">
+        <dc:Bounds x="160" y="230" width="1990" height="505" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Tecnico_di" bpmnElement="Lane_Tecnico" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="1960" height="305" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Inspector_di" bpmnElement="Lane_Inspector" isHorizontal="true">
+        <dc:Bounds x="190" y="535" width="1960" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startWorkshop_di" bpmnElement="startWorkshop">
+        <dc:Bounds x="282" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="264" y="463" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="diagnoseVehicle_di" bpmnElement="diagnoseVehicle">
+        <dc:Bounds x="435" y="400" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="partNeeded_di" bpmnElement="partNeeded" isMarkerVisible="true">
+        <dc:Bounds x="655" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="631" y="470" width="98" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="requestPart_di" bpmnElement="requestPart">
+        <dc:Bounds x="815" y="285" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="receivePart_di" bpmnElement="receivePart">
+        <dc:Bounds x="1042" y="307" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1015" y="353" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="repairMerge_di" bpmnElement="repairMerge" isMarkerVisible="true">
+        <dc:Bounds x="1225" y="415" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="repairVehicle_di" bpmnElement="repairVehicle">
+        <dc:Bounds x="1385" y="400" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inspectRepair_di" bpmnElement="inspectRepair">
+        <dc:Bounds x="1575" y="595" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inspectionOk_di" bpmnElement="inspectionOk" isMarkerVisible="true">
+        <dc:Bounds x="1795" y="610" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1780" y="576" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="workshopEnd_di" bpmnElement="workshopEnd">
+        <dc:Bounds x="1992" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1961" y="658" width="99" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="318" y="440" />
+        <di:waypoint x="435" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="545" y="440" />
+        <di:waypoint x="655" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="680" y="415" />
+        <di:waypoint x="680" y="325" />
+        <di:waypoint x="815" y="325" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="691" y="363" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <di:waypoint x="705" y="440" />
+        <di:waypoint x="1225" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="714" y="420" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="925" y="325" />
+        <di:waypoint x="1042" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="1078" y="325" />
+        <di:waypoint x="1250" y="325" />
+        <di:waypoint x="1250" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1820" y="660" />
+        <di:waypoint x="1820" y="695" />
+        <di:waypoint x="1250" y="695" />
+        <di:waypoint x="1250" y="465" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1726" y="703" width="107" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <di:waypoint x="1275" y="440" />
+        <di:waypoint x="1385" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_di" bpmnElement="Flow_08">
+        <di:waypoint x="1495" y="440" />
+        <di:waypoint x="1545" y="440" />
+        <di:waypoint x="1545" y="635" />
+        <di:waypoint x="1575" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <di:waypoint x="1685" y="635" />
+        <di:waypoint x="1795" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1845" y="635" />
+        <di:waypoint x="1992" y="635" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1856" y="615" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Bodega_di" bpmnElement="Participant_Bodega" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1990" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MessageFlow_SolicitudRepuesto_di" bpmnElement="MessageFlow_SolicitudRepuesto">
+        <di:waypoint x="870" y="285" />
+        <di:waypoint x="870" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="825" y="108" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_RepuestoRecibido_di" bpmnElement="MessageFlow_RepuestoRecibido">
+        <di:waypoint x="1060" y="180" />
+        <di:waypoint x="1060" y="307" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="999" y="128" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

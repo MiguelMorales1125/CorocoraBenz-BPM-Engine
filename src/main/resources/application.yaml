@@ -1,0 +1,56 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: cb-bpm-engine
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_ENGINE_NAME:corocora_camunda}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+  # Servidor SMTP para las notificaciones (por defecto Mailpit local).
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+
+camunda.bpm.admin-user:
+  id: demo
+  password: demo
+camunda.bpm.filter:
+  create: All tasks
+camunda.bpm.generic-properties.properties:
+  userResourceWhitelistPattern: "[a-zA-Z0-9]+|USR-01"
+camunda.bpm.database:
+  schema-update: true
+camunda.bpm.history-level: full
+# Las variables de objeto (p. ej. la lista de novedades) se guardan como JSON, legibles desde la REST API.
+camunda.bpm.default-serialization-format: application/json
+
+corocora:
+  # false: las notificaciones solo quedan en el log. true: se envían por SMTP (spring.mail).
+  correo:
+    habilitado: ${CORREO_HABILITADO:false}
+    remitente: notificaciones@corocorabenz.test
+  cors-origins: http://localhost:9001,http://localhost:9002,http://localhost:9003
+  # Sistemas que el motor llama con HTTP Connector.
+  sistemas:
+    portal-ti: ${PORTAL_TI_URL:http://localhost:9002}
+    banco: ${BANCO_URL:http://localhost:9004}
+    taller-bodega: ${TALLER_BODEGA_URL:http://localhost:9005}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+---
+# Perfil para correr sin PostgreSQL: --spring.profiles.active=h2
+spring:
+  config:
+    activate:
+      on-profile: h2
+  datasource:
+    url: jdbc:h2:mem:corocora_camunda;DB_CLOSE_DELAY=-1
+    username: sa
+    password:

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Periodo",
+      "type": "textfield",
+      "id": "Field_payPeriodId",
+      "key": "payPeriodId",
+      "defaultValue": "2026-11-Q2",
+      "description": "Ejemplo: 2026-11-Q2",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Ciclo de pago",
+      "type": "select",
+      "id": "Field_payCycle",
+      "key": "payCycle",
+      "defaultValue": "QUINCENAL",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Quincenal",
+          "value": "QUINCENAL"
+        },
+        {
+          "label": "Mensual",
+          "value": "MENSUAL"
+        }
+      ]
+    },
+    {
+      "label": "Fecha de corte de novedades",
+      "type": "datetime",
+      "id": "Field_cutoffDate",
+      "key": "cutoffDate",
+      "defaultValue": "2026-11-25",
+      "validate": {
+        "required": true
+      },
+      "subtype": "date",
+      "dateLabel": "Fecha de corte de novedades"
+    }
+  ],
+  "type": "default",
+  "id": "nomina-periodo"
+}

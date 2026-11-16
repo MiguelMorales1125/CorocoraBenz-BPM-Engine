@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Ticket",
+      "type": "textfield",
+      "id": "Field_ticketId",
+      "key": "ticketId",
+      "defaultValue": "TI-0001",
+      "disabled": true
+    },
+    {
+      "label": "Prioridad",
+      "type": "textfield",
+      "id": "Field_priority",
+      "key": "priority",
+      "defaultValue": "P3",
+      "disabled": true
+    },
+    {
+      "label": "Descripción",
+      "type": "textarea",
+      "id": "Field_description",
+      "key": "description",
+      "defaultValue": "La cámara de reversa no carga",
+      "disabled": true
+    },
+    {
+      "label": "Causa raíz",
+      "type": "textarea",
+      "id": "Field_rootCause",
+      "key": "rootCause",
+      "defaultValue": "Versión de firmware con error",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Solución aplicada",
+      "type": "textarea",
+      "id": "Field_resolutionSummary",
+      "key": "resolutionSummary",
+      "defaultValue": "Actualización OTA aplicada",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "ti-diagnostico"
+}

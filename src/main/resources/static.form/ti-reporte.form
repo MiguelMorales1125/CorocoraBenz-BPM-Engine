@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Usuario que reporta",
+      "type": "textfield",
+      "id": "Field_requesterId",
+      "key": "requesterId",
+      "defaultValue": "USR-01",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Sistema afectado",
+      "type": "select",
+      "id": "Field_systemName",
+      "key": "systemName",
+      "defaultValue": "Software del vehículo",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Software del vehículo (cámara, infoentretenimiento)",
+          "value": "Software del vehículo"
+        },
+        {
+          "label": "ERP corporativo",
+          "value": "ERP"
+        },
+        {
+          "label": "Portal de clientes",
+          "value": "Portal de clientes"
+        },
+        {
+          "label": "Correo y colaboración",
+          "value": "Correo"
+        }
+      ]
+    },
+    {
+      "label": "Descripción",
+      "type": "textarea",
+      "id": "Field_description",
+      "key": "description",
+      "defaultValue": "La cámara de reversa no carga",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Impacto",
+      "type": "select",
+      "id": "Field_impact",
+      "key": "impact",
+      "defaultValue": "Medio",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Bajo",
+          "value": "Bajo"
+        },
+        {
+          "label": "Medio",
+          "value": "Medio"
+        },
+        {
+          "label": "Alto",
+          "value": "Alto"
+        }
+      ]
+    },
+    {
+      "label": "Urgencia",
+      "type": "select",
+      "id": "Field_urgency",
+      "key": "urgency",
+      "defaultValue": "Media",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Baja",
+          "value": "Baja"
+        },
+        {
+          "label": "Media",
+          "value": "Media"
+        },
+        {
+          "label": "Alta",
+          "value": "Alta"
+        }
+      ]
+    },
+    {
+      "label": "Afecta la seguridad del vehículo o de la información",
+      "type": "checkbox",
+      "id": "Field_safetyImpact",
+      "key": "safetyImpact",
+      "defaultValue": false,
+      "validate": {
+        "required": false
+      }
+    },
+    {
+      "label": "Equipos o vehículos afectados",
+      "type": "number",
+      "id": "Field_affectedTeams",
+      "key": "affectedTeams",
+      "defaultValue": 1,
+      "validate": {
+        "required": true,
+        "min": 1
+      }
+    }
+  ],
+  "type": "default",
+  "id": "ti-reporte"
+}

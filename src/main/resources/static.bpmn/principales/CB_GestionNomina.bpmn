@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_CB_GestionNomina" targetNamespace="https://corocora-benz.example/bpmn" exporter="Camunda Modeler" exporterVersion="5.52.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:message id="Message_DispersionAceptada" name="DispersionAceptada" />
+  <bpmn:message id="Message_DispersionRechazada" name="DispersionRechazada" />
+  <bpmn:collaboration id="Collaboration_CB_GestionNomina">
+    <bpmn:participant id="Participant_CorocoraBenz" name="Corocora Benz" processRef="CB_GestionNomina" />
+    <bpmn:participant id="Participant_0sp987d" name="Banco" />
+    <bpmn:messageFlow id="MessageFlow_Lote" sourceRef="sendBankBatch" targetRef="Participant_0sp987d" />
+    <bpmn:messageFlow id="MessageFlow_Aceptada" sourceRef="Participant_0sp987d" targetRef="paymentAccepted" />
+    <bpmn:messageFlow id="MessageFlow_Rechazada" sourceRef="Participant_0sp987d" targetRef="paymentRejected" />
+  </bpmn:collaboration>
+  <bpmn:process id="CB_GestionNomina" name="Corocora Benz - Gestión de Nómina" isExecutable="true" camunda:historyTimeToLive="30">
+    <bpmn:laneSet id="LaneSet_CB_GestionNomina">
+      <bpmn:lane id="Lane_Analista" name="Analista de Nómina">
+        <bpmn:flowNodeRef>startPayroll</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fetchMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fetchChanges</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>validatePeriod</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>validateMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>validateEachChange</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>calcMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>calculatePayroll</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>reviewPayroll</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>payrollConsistent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>periodReview</bpmn:flowNodeRef>
+        <bpmn:childLaneSet id="LaneSet_0ijenty" />
+      </bpmn:lane>
+      <bpmn:lane id="Lane_TalentoHumano" name="Gestión de Talento Humano">
+        <bpmn:flowNodeRef>correctChanges</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Jefatura" name="Jefatura de Nómina">
+        <bpmn:flowNodeRef>lateApproved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>approvePayroll</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>payrollApproved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>approveLateChanges</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Tesoreria" name="Tesorería">
+        <bpmn:flowNodeRef>prepareBankBatch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sendMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sendBankBatch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>waitBank</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>paymentAccepted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>paymentRejected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>bankTimeout</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>recordPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fixMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fixBankBatch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>createReceipts</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>payrollEnd</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:sequenceFlow id="Flow_38" sourceRef="createReceipts" targetRef="payrollEnd" />
+    <bpmn:sequenceFlow id="Flow_36" sourceRef="fixMerge" targetRef="fixBankBatch" />
+    <bpmn:sequenceFlow id="Flow_33" sourceRef="recordPayment" targetRef="createReceipts" />
+    <bpmn:sequenceFlow id="Flow_35" sourceRef="bankTimeout" targetRef="fixMerge" />
+    <bpmn:sequenceFlow id="Flow_34" sourceRef="paymentRejected" targetRef="fixMerge" />
+    <bpmn:sequenceFlow id="Flow_32" sourceRef="paymentAccepted" targetRef="recordPayment" />
+    <bpmn:sequenceFlow id="Flow_31" sourceRef="waitBank" targetRef="bankTimeout" />
+    <bpmn:sequenceFlow id="Flow_30" sourceRef="waitBank" targetRef="paymentRejected" />
+    <bpmn:sequenceFlow id="Flow_29" sourceRef="waitBank" targetRef="paymentAccepted" />
+    <bpmn:sequenceFlow id="Flow_28" sourceRef="sendBankBatch" targetRef="waitBank" />
+    <bpmn:sequenceFlow id="Flow_27" sourceRef="sendMerge" targetRef="sendBankBatch" />
+    <bpmn:sequenceFlow id="Flow_37" sourceRef="fixBankBatch" targetRef="sendMerge" />
+    <bpmn:sequenceFlow id="Flow_25" sourceRef="prepareBankBatch" targetRef="sendMerge" />
+    <bpmn:sequenceFlow id="Flow_20" name="Sí" sourceRef="payrollApproved" targetRef="prepareBankBatch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${payrollApproved == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="approvePayroll" targetRef="payrollApproved" />
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="approveLateChanges" targetRef="lateApproved" />
+    <bpmn:sequenceFlow id="Flow_11" name="No" sourceRef="lateApproved" targetRef="correctChanges">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${lateChangesApproved == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_17" name="Sí" sourceRef="payrollConsistent" targetRef="approvePayroll">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${payrollConsistent == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="reviewPayroll" targetRef="payrollConsistent" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="calculatePayroll" targetRef="reviewPayroll" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="calcMerge" targetRef="calculatePayroll" />
+    <bpmn:sequenceFlow id="Flow_21" name="No, devolver" sourceRef="payrollApproved" targetRef="calcMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${payrollApproved == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_18" name="No, recalcular" sourceRef="payrollConsistent" targetRef="calcMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${payrollConsistent == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="validateEachChange" targetRef="calcMerge" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="validateMerge" targetRef="validateEachChange" />
+    <bpmn:sequenceFlow id="Flow_10" name="Sí" sourceRef="lateApproved" targetRef="validateMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${lateChangesApproved == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_07" name="Continuar" sourceRef="periodReview" targetRef="validateMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${reviewStatus == 'CONTINUAR'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_06" name="Novedades fuera de corte" sourceRef="periodReview" targetRef="approveLateChanges">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${reviewStatus == 'REQUIERE_APROBACION_JEFATURA'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_05" name="Periodo cerrado o faltan soportes" sourceRef="periodReview" targetRef="correctChanges">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${reviewStatus == 'PERIODO_CERRADO' || reviewStatus == 'DEVOLVER_A_TALENTO_HUMANO'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="fetchChanges" targetRef="validatePeriod" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="fetchMerge" targetRef="fetchChanges" />
+    <bpmn:sequenceFlow id="Flow_08" sourceRef="correctChanges" targetRef="fetchMerge" />
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="startPayroll" targetRef="fetchMerge" />
+    <bpmn:endEvent id="payrollEnd" name="Nómina pagada y comprobantes emitidos">
+      <bpmn:incoming>Flow_33</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="createReceipts" name="Generar comprobantes de pago" camunda:delegateExpression="${generarComprobantesDelegate}">
+      <bpmn:incoming>Flow_33</bpmn:incoming>
+      <bpmn:outgoing>Flow_38</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="fixBankBatch" name="Corregir lote o consultar al Banco" camunda:candidateGroups="tesoreria">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="bankResponseCode" label="Código de respuesta del Banco" type="string" defaultValue="R03 - Cuenta destino inválida">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="paymentBatchId" label="ID del lote" type="string" defaultValue="LOTE-0001">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="correction" label="Corrección o gestión realizada" type="string" defaultValue="Se consultó al banco y se corrigió la cuenta">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_36</bpmn:incoming>
+      <bpmn:outgoing>Flow_37</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="fixMerge">
+      <bpmn:incoming>Flow_34</bpmn:incoming>
+      <bpmn:incoming>Flow_35</bpmn:incoming>
+      <bpmn:outgoing>Flow_36</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="recordPayment" name="Registrar pago y cerrar periodo" camunda:delegateExpression="${registrarPagoDelegate}">
+      <bpmn:incoming>Flow_32</bpmn:incoming>
+      <bpmn:outgoing>Flow_33</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="bankTimeout" name="Sin respuesta en 2 h">
+      <bpmn:incoming>Flow_31</bpmn:incoming>
+      <bpmn:outgoing>Flow_35</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT2H</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="paymentRejected" name="Dispersión rechazada">
+      <bpmn:incoming>Flow_30</bpmn:incoming>
+      <bpmn:outgoing>Flow_34</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_DispersionRechazada" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="paymentAccepted" name="Dispersión aceptada">
+      <bpmn:incoming>Flow_29</bpmn:incoming>
+      <bpmn:outgoing>Flow_32</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_DispersionAceptada" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:eventBasedGateway id="waitBank" name="Respuesta del Banco">
+      <bpmn:incoming>Flow_28</bpmn:incoming>
+      <bpmn:outgoing>Flow_29</bpmn:outgoing>
+      <bpmn:outgoing>Flow_30</bpmn:outgoing>
+      <bpmn:outgoing>Flow_31</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:serviceTask id="sendBankBatch" name="Enviar dispersión al Banco" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${sistemas.banco}/api/dispersiones</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="Accept">application/json</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">${json.cuerpo(execution, 'paymentBatchId,bankAccount,payrollTotal,payPeriodId')}</camunda:inputParameter>
+            <camunda:outputParameter name="paymentBatchSent">${json.booleano(statusCode, response, 'recibida')}</camunda:outputParameter>
+            <camunda:outputParameter name="bankDispersionId">${json.numero(statusCode, response, 'dispersionId')}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_27</bpmn:incoming>
+      <bpmn:outgoing>Flow_28</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="sendMerge">
+      <bpmn:incoming>Flow_25</bpmn:incoming>
+      <bpmn:incoming>Flow_37</bpmn:incoming>
+      <bpmn:outgoing>Flow_27</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="prepareBankBatch" name="Preparar lote de dispersión" camunda:candidateGroups="tesoreria">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="payrollTotal" label="Total aprobado" type="long" defaultValue="1000000">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="paymentBatchId" label="ID del lote" type="string" defaultValue="LOTE-0001">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="bankAccount" label="Cuenta de origen" type="string" defaultValue="000-123">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:outgoing>Flow_25</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="payrollApproved" name="¿Liquidación aprobada?">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="approvePayroll" name="Aprobar liquidación" camunda:candidateGroups="jefatura-nomina">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="payrollSummary" label="Resumen de la liquidación" type="string" defaultValue="Liquidación simulada del periodo 2026-11-Q2, sin excepciones automáticas">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="payrollTotal" label="Total a pagar" type="long" defaultValue="1000000">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="payrollApproved" label="Aprobar liquidación" type="boolean" defaultValue="true" />
+          <camunda:formField id="approvalReason" label="Motivo o devolución" type="string" defaultValue="Aprobada">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="lateApproved" name="¿Novedades aprobadas?">
+      <bpmn:incoming>Flow_09</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="payrollConsistent" name="¿Liquidación consistente?">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="reviewPayroll" name="Revisar liquidación" camunda:formRef="nomina-revisar-liquidacion" camunda:formRefBinding="deployment" camunda:candidateGroups="analistas-nomina">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="calculatePayroll" name="Calcular liquidación" camunda:delegateExpression="${calcularLiquidacionDelegate}">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="calcMerge">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="validateEachChange" name="Validar cada novedad de empleado" calledElement="CB_ValidarNovedadEmpleado" camunda:calledElementBinding="deployment">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in sourceExpression="${employeeChange.employeeId}" target="employeeId" />
+        <camunda:in sourceExpression="${employeeChange.changeType}" target="changeType" />
+        <camunda:in sourceExpression="${employeeChange.changeValue}" target="changeValue" />
+        <camunda:in sourceExpression="${employeeChange.supportAttached}" target="supportAttached" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="${employeeChanges}" camunda:elementVariable="employeeChange" />
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="validateMerge">
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:businessRuleTask id="validatePeriod" name="Evaluar novedades y fecha de corte" camunda:resultVariable="payrollDecision" camunda:decisionRef="CB_ClasificarExcepcionNomina" camunda:mapDecisionResult="singleResult">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="reviewStatus">${payrollDecision.reviewStatus}</camunda:outputParameter>
+          <camunda:outputParameter name="reasonCode">${payrollDecision.reasonCode}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:serviceTask id="fetchChanges" name="Recolectar novedades del periodo" camunda:delegateExpression="${obtenerNovedadesDelegate}">
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="fetchMerge">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:incoming>Flow_08</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:startEvent id="startPayroll" name="Ciclo de pago iniciado" camunda:formRef="nomina-periodo" camunda:formRefBinding="deployment">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_04" sourceRef="validatePeriod" targetRef="periodReview" />
+    <bpmn:exclusiveGateway id="periodReview" name="¿Qué resultado aplica?">
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="correctChanges" name="Corregir novedades o reabrir periodo" camunda:candidateGroups="gestion-talento-humano">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="reasonCode" label="Motivo de la devolución" type="string" defaultValue="SOPORTE_INCOMPLETO">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="correctionAction" label="Acción realizada" type="enum" defaultValue="FIX_RECORDS">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+            <camunda:value id="FIX_RECORDS" name="Completar soportes o corregir novedades" />
+            <camunda:value id="REQUEST_REOPEN" name="Reabrir el periodo" />
+          </camunda:formField>
+          <camunda:formField id="correctionNotes" label="Detalle de la corrección" type="string" defaultValue="Soportes cargados">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_08</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="approveLateChanges" name="Aprobar novedades fuera de corte" camunda:candidateGroups="jefatura-nomina">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="lateChangesSummary" label="Novedades fuera de corte" type="string" defaultValue="EMP-003 · Horas extra · 4 h registradas después de la fecha de corte">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="lateChangesApproved" label="Aprobar las novedades" type="boolean" defaultValue="true" />
+          <camunda:formField id="lateDecisionReason" label="Motivo de la decisión" type="string" defaultValue="Autorizada por gerencia">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:outgoing>Flow_09</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_CB_GestionNomina">
+    <bpmndi:BPMNPlane id="Plane_CB_GestionNomina" bpmnElement="Collaboration_CB_GestionNomina">
+      <bpmndi:BPMNShape id="Participant_CorocoraBenz_di" bpmnElement="Participant_CorocoraBenz" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="4608" height="1220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Tesoreria_di" bpmnElement="Lane_Tesoreria" isHorizontal="true">
+        <dc:Bounds x="190" y="890" width="4578" height="410" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Jefatura_di" bpmnElement="Lane_Jefatura" isHorizontal="true">
+        <dc:Bounds x="190" y="470" width="4578" height="420" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_TalentoHumano_di" bpmnElement="Lane_TalentoHumano" isHorizontal="true">
+        <dc:Bounds x="190" y="270" width="4578" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Analista_di" bpmnElement="Lane_Analista" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="4578" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="payrollEnd_di" bpmnElement="payrollEnd">
+        <dc:Bounds x="4662" y="957" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4636" y="907" width="87" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="createReceipts_di" bpmnElement="createReceipts">
+        <dc:Bounds x="4465" y="935" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fixBankBatch_di" bpmnElement="fixBankBatch">
+        <dc:Bounds x="4485" y="1165" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fixMerge_di" bpmnElement="fixMerge" isMarkerVisible="true">
+        <dc:Bounds x="4325" y="1180" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="recordPayment_di" bpmnElement="recordPayment">
+        <dc:Bounds x="4295" y="935" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bankTimeout_di" bpmnElement="bankTimeout">
+        <dc:Bounds x="4052" y="1187" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4020" y="1228" width="101" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="paymentRejected_di" bpmnElement="paymentRejected">
+        <dc:Bounds x="4142" y="1072" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4106" y="1048" width="107" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="paymentAccepted_di" bpmnElement="paymentAccepted">
+        <dc:Bounds x="4212" y="957" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4180" y="923" width="101" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitBank_di" bpmnElement="waitBank">
+        <dc:Bounds x="3945" y="1065" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3918" y="1125" width="105" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sendBankBatch_di" bpmnElement="sendBankBatch">
+        <dc:Bounds x="3725" y="1050" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sendMerge_di" bpmnElement="sendMerge" isMarkerVisible="true">
+        <dc:Bounds x="3565" y="1065" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareBankBatch_di" bpmnElement="prepareBankBatch">
+        <dc:Bounds x="3155" y="1050" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="payrollApproved_di" bpmnElement="payrollApproved" isMarkerVisible="true">
+        <dc:Bounds x="2835" y="595" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2828" y="566" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approvePayroll_di" bpmnElement="approvePayroll">
+        <dc:Bounds x="2625" y="580" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="lateApproved_di" bpmnElement="lateApproved" isMarkerVisible="true">
+        <dc:Bounds x="1415" y="635" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1409" y="690" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="payrollConsistent_di" bpmnElement="payrollConsistent" isMarkerVisible="true">
+        <dc:Bounds x="2555" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2608" y="166" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewPayroll_di" bpmnElement="reviewPayroll">
+        <dc:Bounds x="2335" y="140" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="calculatePayroll_di" bpmnElement="calculatePayroll">
+        <dc:Bounds x="2145" y="140" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="calcMerge_di" bpmnElement="calcMerge" isMarkerVisible="true">
+        <dc:Bounds x="1985" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="validateEachChange_di" bpmnElement="validateEachChange">
+        <dc:Bounds x="1765" y="140" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="validateMerge_di" bpmnElement="validateMerge" isMarkerVisible="true">
+        <dc:Bounds x="1605" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="validatePeriod_di" bpmnElement="validatePeriod">
+        <dc:Bounds x="815" y="140" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fetchChanges_di" bpmnElement="fetchChanges">
+        <dc:Bounds x="625" y="140" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fetchMerge_di" bpmnElement="fetchMerge" isMarkerVisible="true">
+        <dc:Bounds x="465" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startPayroll_di" bpmnElement="startPayroll">
+        <dc:Bounds x="282" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="246" y="203" width="108" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="periodReview_di" bpmnElement="periodReview" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1032" y="122" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="correctChanges_di" bpmnElement="correctChanges">
+        <dc:Bounds x="1275" y="330" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveLateChanges_di" bpmnElement="approveLateChanges">
+        <dc:Bounds x="1275" y="620" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_38_di" bpmnElement="Flow_38">
+        <di:waypoint x="4575" y="975" />
+        <di:waypoint x="4662" y="975" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_36_di" bpmnElement="Flow_36">
+        <di:waypoint x="4375" y="1205" />
+        <di:waypoint x="4485" y="1205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_33_di" bpmnElement="Flow_33">
+        <di:waypoint x="4405" y="975" />
+        <di:waypoint x="4465" y="975" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_35_di" bpmnElement="Flow_35">
+        <di:waypoint x="4088" y="1205" />
+        <di:waypoint x="4325" y="1205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_34_di" bpmnElement="Flow_34">
+        <di:waypoint x="4178" y="1090" />
+        <di:waypoint x="4350" y="1090" />
+        <di:waypoint x="4350" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_32_di" bpmnElement="Flow_32">
+        <di:waypoint x="4248" y="975" />
+        <di:waypoint x="4295" y="975" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_31_di" bpmnElement="Flow_31">
+        <di:waypoint x="3970" y="1115" />
+        <di:waypoint x="3970" y="1205" />
+        <di:waypoint x="4052" y="1205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_30_di" bpmnElement="Flow_30">
+        <di:waypoint x="3995" y="1090" />
+        <di:waypoint x="4142" y="1090" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_29_di" bpmnElement="Flow_29">
+        <di:waypoint x="3970" y="1065" />
+        <di:waypoint x="3970" y="975" />
+        <di:waypoint x="4212" y="975" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_28_di" bpmnElement="Flow_28">
+        <di:waypoint x="3835" y="1090" />
+        <di:waypoint x="3945" y="1090" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_27_di" bpmnElement="Flow_27">
+        <di:waypoint x="3615" y="1090" />
+        <di:waypoint x="3725" y="1090" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_37_di" bpmnElement="Flow_37">
+        <di:waypoint x="4540" y="1245" />
+        <di:waypoint x="4540" y="1280" />
+        <di:waypoint x="3590" y="1280" />
+        <di:waypoint x="3590" y="1115" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_25_di" bpmnElement="Flow_25">
+        <di:waypoint x="3265" y="1090" />
+        <di:waypoint x="3565" y="1090" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+        <di:waypoint x="2885" y="620" />
+        <di:waypoint x="2920" y="620" />
+        <di:waypoint x="2920" y="1090" />
+        <di:waypoint x="3045" y="1090" />
+        <di:waypoint x="3155" y="1090" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2930" y="845" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <di:waypoint x="2735" y="620" />
+        <di:waypoint x="2835" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <di:waypoint x="1385" y="660" />
+        <di:waypoint x="1415" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1440" y="635" />
+        <di:waypoint x="1440" y="370" />
+        <di:waypoint x="1385" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1442" y="613" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="2580" y="205" />
+        <di:waypoint x="2580" y="620" />
+        <di:waypoint x="2625" y="620" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2591" y="241" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <di:waypoint x="2445" y="180" />
+        <di:waypoint x="2555" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="2255" y="180" />
+        <di:waypoint x="2335" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="2035" y="180" />
+        <di:waypoint x="2145" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21">
+        <di:waypoint x="2860" y="645" />
+        <di:waypoint x="2860" y="710" />
+        <di:waypoint x="2010" y="710" />
+        <di:waypoint x="2010" y="205" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2793" y="692" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="2580" y="155" />
+        <di:waypoint x="2580" y="100" />
+        <di:waypoint x="2010" y="100" />
+        <di:waypoint x="2010" y="155" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2586" y="103" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1875" y="180" />
+        <di:waypoint x="1985" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1655" y="180" />
+        <di:waypoint x="1765" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1465" y="660" />
+        <di:waypoint x="1630" y="660" />
+        <di:waypoint x="1630" y="205" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1494" y="663" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <di:waypoint x="1095" y="180" />
+        <di:waypoint x="1605" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1108" y="160" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="1070" y="205" />
+        <di:waypoint x="1070" y="660" />
+        <di:waypoint x="1275" y="660" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1076" y="633" width="127" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="1070" y="205" />
+        <di:waypoint x="1070" y="310" />
+        <di:waypoint x="1330" y="310" />
+        <di:waypoint x="1330" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1088" y="276" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="735" y="180" />
+        <di:waypoint x="815" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="515" y="180" />
+        <di:waypoint x="625" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_di" bpmnElement="Flow_08">
+        <di:waypoint x="1275" y="360" />
+        <di:waypoint x="490" y="360" />
+        <di:waypoint x="490" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="318" y="180" />
+        <di:waypoint x="465" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <di:waypoint x="925" y="180" />
+        <di:waypoint x="1045" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_1s3ef7d_di" bpmnElement="Participant_0sp987d" isHorizontal="true">
+        <dc:Bounds x="150" y="1350" width="4618" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MessageFlow_Lote_di" bpmnElement="MessageFlow_Lote">
+        <di:waypoint x="3780" y="1130" />
+        <di:waypoint x="3780" y="1350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Aceptada_di" bpmnElement="MessageFlow_Aceptada">
+        <di:waypoint x="4230" y="1350" />
+        <di:waypoint x="4230" y="993" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Rechazada_di" bpmnElement="MessageFlow_Rechazada">
+        <di:waypoint x="4160" y="1350" />
+        <di:waypoint x="4160" y="1108" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
