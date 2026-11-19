@@ -37,8 +37,7 @@
       "label": "Nuevo responsable",
       "type": "textfield",
       "id": "Field_newOwner",
-      "key": "newOwner",
-      "defaultValue": "demo"
+      "key": "newOwner"
     }
   ],
   "type": "default",

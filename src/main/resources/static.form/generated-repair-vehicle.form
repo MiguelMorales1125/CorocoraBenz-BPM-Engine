@@ -16,6 +16,13 @@
       "disabled": true
     },
     {
+      "label": "Resultado de la última inspección",
+      "type": "textfield",
+      "id": "Field_inspectionResults",
+      "key": "inspectionResults",
+      "disabled": true
+    },
+    {
       "label": "Trabajo realizado",
       "type": "textfield",
       "id": "Field_repairNotes",

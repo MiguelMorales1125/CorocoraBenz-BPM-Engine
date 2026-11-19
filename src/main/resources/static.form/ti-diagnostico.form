@@ -32,6 +32,20 @@
       "disabled": true
     },
     {
+      "label": "Causa registrada en el intento anterior",
+      "type": "textarea",
+      "id": "Field_previousRootCause",
+      "key": "previousRootCause",
+      "disabled": true
+    },
+    {
+      "label": "Solución rechazada por el usuario",
+      "type": "textarea",
+      "id": "Field_previousResolution",
+      "key": "previousResolution",
+      "disabled": true
+    },
+    {
       "label": "Causa raíz",
       "type": "textarea",
       "id": "Field_rootCause",

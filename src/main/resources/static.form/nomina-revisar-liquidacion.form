@@ -32,6 +32,13 @@
       "disabled": true
     },
     {
+      "label": "Motivo de la devolución de Jefatura",
+      "type": "textfield",
+      "id": "Field_approvalReason",
+      "key": "approvalReason",
+      "disabled": true
+    },
+    {
       "label": "Liquidación consistente",
       "type": "checkbox",
       "id": "Field_payrollConsistent",

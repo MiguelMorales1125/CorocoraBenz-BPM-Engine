@@ -51,7 +51,7 @@
         <bpmn:flowNodeRef>attendWorkshop</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="startRequest" name="Solicitud de servicio recibida">
+    <bpmn:startEvent id="startRequest" name="Solicitud de servicio recibida" camunda:formRef="postventa-solicitud" camunda:formRefBinding="deployment">
       <bpmn:outgoing>Flow_01</bpmn:outgoing>
       <bpmn:messageEventDefinition messageRef="Message_SolicitudServicio" />
     </bpmn:startEvent>
@@ -69,6 +69,7 @@
               <camunda:map>
                 <camunda:entry key="Content-Type">application/json</camunda:entry>
                 <camunda:entry key="Accept">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
             <camunda:outputParameter name="historyRecordId">${json.texto(statusCode, response, 'historyRecordId')}</camunda:outputParameter>
@@ -116,6 +117,7 @@
               <camunda:map>
                 <camunda:entry key="Content-Type">application/json</camunda:entry>
                 <camunda:entry key="Accept">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">${json.cuerpo(execution, 'vin,customerName,symptom')}</camunda:inputParameter>
@@ -184,6 +186,7 @@
               <camunda:map>
                 <camunda:entry key="Content-Type">application/json</camunda:entry>
                 <camunda:entry key="Accept">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">${json.cuerpo(execution, 'vin')}</camunda:inputParameter>

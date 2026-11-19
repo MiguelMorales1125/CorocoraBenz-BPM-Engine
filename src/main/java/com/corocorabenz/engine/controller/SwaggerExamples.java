@@ -18,9 +18,5 @@ final class SwaggerExamples {
 
     static final String CONFIRMATION_TASK = "{\"variables\":{\"userConfirmed\":true}}";
 
-    static final String EXTERNAL_TASK_LOCK = "{\"workerId\":\"demo-worker\",\"lockDurationMs\":60000}";
-
-    static final String EXTERNAL_TASK_COMPLETE = "{\"workerId\":\"demo-worker\",\"variables\":{\"ticketStatus\":\"CLOSED\"}}";
-
     static final String MESSAGE_EVENT = "{\"businessKey\":\"POST-DEMO-001\",\"variables\":{}}";
 }

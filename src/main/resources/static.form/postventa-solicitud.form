@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 16,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "components": [
+    {
+      "label": "Cliente",
+      "type": "textfield",
+      "id": "Field_customerName",
+      "key": "customerName",
+      "defaultValue": "Cliente de prueba",
+      "validate": {
+        "required": true,
+        "maxLength": 255
+      }
+    },
+    {
+      "label": "VIN",
+      "type": "textfield",
+      "id": "Field_vin",
+      "key": "vin",
+      "defaultValue": "CB0TEST0000000001",
+      "description": "17 letras mayúsculas y números, sin I, O ni Q",
+      "validate": {
+        "required": true,
+        "pattern": "^[A-HJ-NPR-Z0-9]{17}$"
+      }
+    },
+    {
+      "label": "Kilometraje",
+      "type": "number",
+      "id": "Field_mileageKm",
+      "key": "mileageKm",
+      "defaultValue": 15000,
+      "decimalDigits": 0,
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    },
+    {
+      "label": "Tipo de servicio",
+      "type": "select",
+      "id": "Field_serviceType",
+      "key": "serviceType",
+      "defaultValue": "Garantía",
+      "validate": {
+        "required": true
+      },
+      "values": [
+        {
+          "label": "Garantía",
+          "value": "Garantía"
+        },
+        {
+          "label": "Mantenimiento",
+          "value": "Mantenimiento"
+        },
+        {
+          "label": "Reparación",
+          "value": "Reparación"
+        }
+      ]
+    },
+    {
+      "label": "Síntoma reportado",
+      "type": "textarea",
+      "id": "Field_symptom",
+      "key": "symptom",
+      "defaultValue": "La cámara de reversa no muestra imagen",
+      "validate": {
+        "required": true,
+        "maxLength": 255
+      }
+    }
+  ],
+  "type": "default",
+  "id": "postventa-solicitud"
+}

@@ -26,6 +26,16 @@
       }
     },
     {
+      "label": "Cuenta de origen corregida",
+      "type": "textfield",
+      "id": "Field_bankAccount",
+      "key": "bankAccount",
+      "defaultValue": "000-123",
+      "validate": {
+        "required": true
+      }
+    },
+    {
       "label": "Corrección o gestión realizada",
       "type": "textfield",
       "id": "Field_correction",

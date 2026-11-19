@@ -49,6 +49,30 @@
       },
       "subtype": "date",
       "dateLabel": "Fecha de corte de novedades"
+    },
+    {
+      "label": "Simular: periodo cerrado",
+      "type": "checkbox",
+      "id": "Field_simulatePeriodClosed",
+      "key": "simulatePeriodClosed",
+      "defaultValue": false,
+      "description": "Demostración: Talento Humano deberá reabrir el periodo"
+    },
+    {
+      "label": "Simular: soportes incompletos",
+      "type": "checkbox",
+      "id": "Field_simulateMissingSupports",
+      "key": "simulateMissingSupports",
+      "defaultValue": false,
+      "description": "Demostración: Talento Humano deberá corregir las novedades"
+    },
+    {
+      "label": "Simular: novedades fuera de corte",
+      "type": "checkbox",
+      "id": "Field_simulateLateChanges",
+      "key": "simulateLateChanges",
+      "defaultValue": false,
+      "description": "Demostración: Jefatura deberá aprobar las novedades tardías"
     }
   ],
   "type": "default",

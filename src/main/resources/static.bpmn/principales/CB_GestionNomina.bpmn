@@ -23,7 +23,6 @@
         <bpmn:flowNodeRef>reviewPayroll</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>payrollConsistent</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>periodReview</bpmn:flowNodeRef>
-        <bpmn:childLaneSet id="LaneSet_0ijenty" />
       </bpmn:lane>
       <bpmn:lane id="Lane_TalentoHumano" name="Gestión de Talento Humano">
         <bpmn:flowNodeRef>correctChanges</bpmn:flowNodeRef>
@@ -101,7 +100,7 @@
     <bpmn:sequenceFlow id="Flow_08" sourceRef="correctChanges" targetRef="fetchMerge" />
     <bpmn:sequenceFlow id="Flow_01" sourceRef="startPayroll" targetRef="fetchMerge" />
     <bpmn:endEvent id="payrollEnd" name="Nómina pagada y comprobantes emitidos">
-      <bpmn:incoming>Flow_33</bpmn:incoming>
+      <bpmn:incoming>Flow_38</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="createReceipts" name="Generar comprobantes de pago" camunda:delegateExpression="${generarComprobantesDelegate}">
       <bpmn:incoming>Flow_33</bpmn:incoming>
@@ -121,6 +120,9 @@
       <bpmn:outgoing>Flow_33</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:intermediateCatchEvent id="bankTimeout" name="Sin respuesta en 2 h">
+      <bpmn:extensionElements>
+        <camunda:executionListener event="end" expression="${execution.setVariable('bankResponseCode', 'SIN-RESPUESTA-2H')}" />
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_31</bpmn:incoming>
       <bpmn:outgoing>Flow_35</bpmn:outgoing>
       <bpmn:timerEventDefinition>
@@ -153,6 +155,7 @@
               <camunda:map>
                 <camunda:entry key="Content-Type">application/json</camunda:entry>
                 <camunda:entry key="Accept">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">${json.cuerpo(execution, 'paymentBatchId,bankAccount,payrollTotal,payPeriodId')}</camunda:inputParameter>

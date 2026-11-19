@@ -119,6 +119,7 @@
       "id": "Field_affectedTeams",
       "key": "affectedTeams",
       "defaultValue": 1,
+      "decimalDigits": 0,
       "validate": {
         "required": true,
         "min": 1

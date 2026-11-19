@@ -9,10 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.task.Task;
-import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,11 +27,9 @@ import org.springframework.web.server.ResponseStatusException;
 public class DemoTaskController {
 
     private final TaskService taskService;
-    private final ExternalTaskService externalTaskService;
 
-    public DemoTaskController(TaskService taskService, ExternalTaskService externalTaskService) {
+    public DemoTaskController(TaskService taskService) {
         this.taskService = taskService;
-        this.externalTaskService = externalTaskService;
     }
 
     @GetMapping("/tasks")
@@ -69,48 +65,6 @@ public class DemoTaskController {
         return Map.of("taskId", taskId, "status", "completed");
     }
 
-    @GetMapping("/external-tasks")
-    @Operation(summary = "Consultar tareas externas pendientes", description = "Con los cuatro workers activos normalmente se completan automáticamente.")
-    public List<Map<String, Object>> externalTasks(
-            @Parameter(description = "Topic exacto de BPMN, por ejemplo ti.crearTicket.", example = "ti.crearTicket")
-            @RequestParam(required = false) String topic) {
-        var query = externalTaskService.createExternalTaskQuery().notLocked();
-        if (topic != null && !topic.isBlank()) {
-            query.topicName(topic);
-        }
-        return query.list().stream().map(DemoTaskController::externalTaskResponse).collect(Collectors.toList());
-    }
-
-    @PostMapping("/external-tasks/{taskId}/lock")
-    @Operation(summary = "Bloquear una tarea externa para simular un worker", description = "Úsalo solo si vas a completar manualmente una External Task.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExternalTaskLockRequest.class),
-                            examples = @ExampleObject(name = "Bloqueo de 60 segundos", value = SwaggerExamples.EXTERNAL_TASK_LOCK))))
-    public Map<String, String> lockExternalTask(
-            @PathVariable String taskId, @RequestBody ExternalTaskLockRequest request) {
-        requireWorker(request);
-        externalTaskService.lock(taskId, request.workerId(), request.lockDurationMs());
-        return Map.of("taskId", taskId, "workerId", request.workerId(), "status", "locked");
-    }
-
-    @PostMapping("/external-tasks/{taskId}/complete")
-    @Operation(summary = "Completar una tarea externa simulada", description = "El workerId debe coincidir con el que usaste al bloquear la tarea.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExternalTaskCompletionRequest.class),
-                            examples = @ExampleObject(name = "Respuesta del worker", value = SwaggerExamples.EXTERNAL_TASK_COMPLETE))))
-    public Map<String, String> completeExternalTask(
-            @PathVariable String taskId, @RequestBody ExternalTaskCompletionRequest request) {
-        if (request == null || request.workerId() == null || request.workerId().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "workerId es obligatorio");
-        }
-        externalTaskService.complete(taskId, request.workerId(), request.safeVariables());
-        return Map.of("taskId", taskId, "workerId", request.workerId(), "status", "completed");
-    }
-
     private static Map<String, Object> humanTaskResponse(Task task) {
         return Map.of(
                 "id", task.getId(),
@@ -118,21 +72,5 @@ public class DemoTaskController {
                 "taskDefinitionKey", task.getTaskDefinitionKey(),
                 "processInstanceId", task.getProcessInstanceId(),
                 "assignee", task.getAssignee() == null ? "" : task.getAssignee());
-    }
-
-    private static Map<String, Object> externalTaskResponse(ExternalTask task) {
-        return Map.of(
-                "id", task.getId(),
-                "topicName", task.getTopicName(),
-                "activityId", task.getActivityId(),
-                "processInstanceId", task.getProcessInstanceId());
-    }
-
-    private static void requireWorker(ExternalTaskLockRequest request) {
-        if (request == null || request.workerId() == null || request.workerId().isBlank()
-                || request.lockDurationMs() <= 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "workerId y lockDurationMs positivo son obligatorios");
-        }
     }
 }

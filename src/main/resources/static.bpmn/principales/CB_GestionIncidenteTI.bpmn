@@ -34,11 +34,24 @@
       <bpmn:outgoing>Flow_01</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:serviceTask id="createTicket" name="Registrar ticket del incidente" camunda:asyncBefore="true">
-      <bpmn:extensionElements><camunda:connector><camunda:inputOutput>
-        <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets</camunda:inputParameter>
-        <camunda:inputParameter name="method">POST</camunda:inputParameter><camunda:inputParameter name="headers"><camunda:map><camunda:entry key="Content-Type">application/json</camunda:entry></camunda:map></camunda:inputParameter>
-        <camunda:inputParameter name="payload">${json.cuerpo(execution, 'requesterId,systemName,description,impact,urgency,safetyImpact,affectedTeams')}</camunda:inputParameter><camunda:outputParameter name="ticketId">${json.texto(statusCode, response, 'ticketId')}</camunda:outputParameter><camunda:outputParameter name="ticketStatus">${json.texto(statusCode, response, 'ticketStatus')}</camunda:outputParameter>
-      </camunda:inputOutput><camunda:connectorId>http-connector</camunda:connectorId></camunda:connector></bpmn:extensionElements>
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">${json.cuerpo(execution, 'requesterId,systemName,description,impact,urgency,safetyImpact,affectedTeams')}</camunda:inputParameter>
+            <camunda:outputParameter name="ticketId">${json.texto(statusCode, response, 'ticketId')}</camunda:outputParameter>
+            <camunda:outputParameter name="ticketStatus">${json.texto(statusCode, response, 'ticketStatus')}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_01</bpmn:incoming>
       <bpmn:outgoing>Flow_02</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -70,6 +83,8 @@
         <camunda:in source="technicalDomain" target="technicalDomain" />
         <camunda:in source="priority" target="priority" />
         <camunda:in source="description" target="description" />
+        <camunda:in source="rootCause" target="previousRootCause" />
+        <camunda:in source="resolutionSummary" target="previousResolution" />
         <camunda:out source="rootCause" target="rootCause" />
         <camunda:out source="resolutionSummary" target="resolutionSummary" />
       </bpmn:extensionElements>
@@ -131,20 +146,44 @@
       <bpmn:outgoing>Flow_18</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="closeAutoTicket" name="Cerrar ticket por falta de respuesta" camunda:asyncBefore="true">
-      <bpmn:extensionElements><camunda:connector><camunda:inputOutput>
-        <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets/${ticketId}/cerrar</camunda:inputParameter>
-        <camunda:inputParameter name="method">POST</camunda:inputParameter><camunda:inputParameter name="headers"><camunda:map><camunda:entry key="Content-Type">application/json</camunda:entry></camunda:map></camunda:inputParameter>
-        <camunda:inputParameter name="payload">${json.cuerpo(execution, '')}</camunda:inputParameter><camunda:outputParameter name="ticketStatus">${json.texto(statusCode, response, 'ticketStatus')}</camunda:outputParameter>
-      </camunda:inputOutput><camunda:connectorId>http-connector</camunda:connectorId></camunda:connector></bpmn:extensionElements>
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets/${ticketId}/cerrar</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">${json.cuerpo(execution, '')}</camunda:inputParameter>
+            <camunda:outputParameter name="ticketStatus">${json.texto(statusCode, response, 'ticketStatus')}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_18</bpmn:incoming>
       <bpmn:outgoing>Flow_19</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="closeTicket" name="Cerrar ticket verificado" camunda:asyncBefore="true">
-      <bpmn:extensionElements><camunda:connector><camunda:inputOutput>
-        <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets/${ticketId}/cerrar</camunda:inputParameter>
-        <camunda:inputParameter name="method">POST</camunda:inputParameter><camunda:inputParameter name="headers"><camunda:map><camunda:entry key="Content-Type">application/json</camunda:entry></camunda:map></camunda:inputParameter>
-        <camunda:inputParameter name="payload">${json.cuerpo(execution, '')}</camunda:inputParameter><camunda:outputParameter name="ticketStatus">${json.texto(statusCode, response, 'ticketStatus')}</camunda:outputParameter>
-      </camunda:inputOutput><camunda:connectorId>http-connector</camunda:connectorId></camunda:connector></bpmn:extensionElements>
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${sistemas.portalTi}/api/tickets/${ticketId}/cerrar</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="X-CB-Internal">${sistemas.token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">${json.cuerpo(execution, '')}</camunda:inputParameter>
+            <camunda:outputParameter name="ticketStatus">${json.texto(statusCode, response, 'ticketStatus')}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_13</bpmn:incoming>
       <bpmn:outgoing>Flow_17</bpmn:outgoing>
     </bpmn:serviceTask>

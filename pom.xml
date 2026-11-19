@@ -16,6 +16,12 @@
   <description>Motor Camunda 7 embebido que orquesta los sistemas de Corocora Benz (puerto 9000)</description>
 
   <dependencies>
+    <!-- Credencial interna: filtro sobre /engine-rest y /api/demo, y token para los HTTP Connector. -->
+    <dependency>
+      <groupId>com.corocorabenz</groupId>
+      <artifactId>cb-comun</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -69,6 +75,12 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

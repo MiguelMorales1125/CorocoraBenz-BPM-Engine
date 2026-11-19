@@ -40,7 +40,7 @@
       "validate": {
         "required": true,
         "min": 1,
-        "max": 6
+        "max": 5
       }
     },
     {

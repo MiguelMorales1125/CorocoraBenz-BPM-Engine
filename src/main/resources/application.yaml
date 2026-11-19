@@ -14,26 +14,46 @@ spring:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
 
-camunda.bpm.admin-user:
-  id: demo
-  password: demo
-camunda.bpm.filter:
-  create: All tasks
-camunda.bpm.generic-properties.properties:
-  userResourceWhitelistPattern: "[a-zA-Z0-9]+|USR-01"
-  groupResourceWhitelistPattern: "[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*"
-camunda.bpm.database:
-  schema-update: true
-camunda.bpm.history-level: full
-# Las variables de objeto (p. ej. la lista de novedades) se guardan como JSON, legibles desde la REST API.
-camunda.bpm.default-serialization-format: application/json
+camunda:
+  bpm:
+    # Administrador de las webapps (Cockpit, Tasklist, Admin). Camunda lo crea si aún no existe,
+    # también cuando corocora.demo.identidades es false: sin él nadie podría administrar el motor.
+    admin-user:
+      id: demo
+      password: ${corocora.demo.password}
+      email: demo@corocorabenz.test
+    filter:
+      create: All tasks
+    database:
+      schema-update: true
+    history-level: full
+    # Las variables de objeto (p. ej. la lista de novedades) se guardan como JSON, legibles desde la REST API.
+    default-serialization-format: application/json
+    # ClaveDeNegocioAutomatica escucha estos eventos para dar businessKey a las instancias que arrancan sin ella.
+    eventing:
+      execution: true
+    generic-properties:
+      properties:
+        # USR-01 lleva guion; el patrón por defecto de Camunda no lo admitiría.
+        userResourceWhitelistPattern: "[a-zA-Z0-9]+|USR-01"
+        groupResourceWhitelistPattern: "[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*"
 
 corocora:
+  # Credencial con la que los sistemas se identifican entre sí (encabezado X-CB-Internal).
+  # El motor la exige en sus rutas internas y la envía en los HTTP Connector (${sistemas.token}).
+  internal-token: ${COROCORA_INTERNAL_TOKEN:cb-local-interno-demo}
+  # Rutas que exigen la credencial interna. Quedan fuera las webapps de Camunda (/camunda/**, con su
+  # propio login), Swagger UI y /v3/api-docs.
+  rutas-internas: /engine-rest/*,/api/demo/*
+  # Cuentas y grupos de demostración con los que se inicia sesión en los portales (clase IdentidadesDemo).
+  demo:
+    identidades: ${COROCORA_DEMO_IDENTIDADES:true}
+    # Contraseña de las cuentas nuevas. No cambia la de las cuentas que ya existen.
+    password: ${COROCORA_DEMO_PASSWORD:demo}
   # false: las notificaciones solo quedan en el log. true: se envían por SMTP (spring.mail).
   correo:
     habilitado: ${CORREO_HABILITADO:false}
     remitente: notificaciones@corocorabenz.test
-  cors-origins: http://localhost:9001,http://localhost:9002,http://localhost:9003
   # Sistemas que el motor llama con HTTP Connector.
   sistemas:
     portal-ti: ${PORTAL_TI_URL:http://localhost:9002}

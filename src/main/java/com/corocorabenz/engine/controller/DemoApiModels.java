@@ -21,19 +21,6 @@ record CompleteTaskRequest(
     }
 }
 
-record ExternalTaskLockRequest(
-        @Schema(description = "Nombre que identifica el worker simulado.", example = "demo-worker") String workerId,
-        @Schema(description = "Duración del bloqueo en milisegundos.", example = "60000") long lockDurationMs) {
-}
-
-record ExternalTaskCompletionRequest(
-        @Schema(description = "El mismo workerId usado para bloquear la tarea.", example = "demo-worker") String workerId,
-        @Schema(description = "Variables que el worker entrega al completar la tarea.") Map<String, Object> variables) {
-    Map<String, Object> safeVariables() {
-        return variables == null ? Map.of() : variables;
-    }
-}
-
 record MessageEventRequest(
         @Schema(description = "La misma referencia de negocio; también debe coincidir con la businessKey de la ruta.", example = "POST-DEMO-001")
         String businessKey,
